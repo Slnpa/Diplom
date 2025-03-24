@@ -1,0 +1,92 @@
+.reviews-section {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .reviews-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 14px;
+  }
+  
+  .no-reviews {
+    font-size: 16px;
+    color: #888;
+  }
+  
+  .reviews-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .review-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .stars {
+    display: inline-block;
+  }
+  
+  .star {
+    font-size: 18px;
+    color: #ccc; /* Цвет пустых звезд */
+    margin-right: 2px;
+  }
+  
+  .star.filled {
+    color: #ffd700; /* Цвет заполненных звезд */
+  }
+  
+  .review-comment {
+    margin: 5px 0 0 0;
+    font-style: italic;
+    color: #555;
+  }
+  
+  .review-form {
+    margin-top: 20px;
+  }
+  
+  .review-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .rating-select,
+  .comment-textarea {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .submit-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  

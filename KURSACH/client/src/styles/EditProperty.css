@@ -1,0 +1,154 @@
+/* src/styles/EditProperty.css */
+
+.edit-property {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.edit-property h2 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.property-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="file"] {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.criteria-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.criteria-list .form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.criteria-list .form-check input {
+  width: 20px;
+  height: 20px;
+}
+
+.criteria-list .form-check label {
+  font-size: 14px;
+  color: #666;
+}
+
+.select-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.select-group label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+}
+
+.btn-submit {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 14px 22px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-align: center;
+  width: 100%;
+}
+
+.btn-submit:hover {
+  background-color: #45a049;
+}
+
+.message {
+  margin-top: 20px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.message.success {
+  color: #4CAF50;
+}
+
+.message.error {
+  color: #F44336;
+}
+
+.image-preview {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.image-preview img {
+  max-width: 100px;
+  border-radius: 6px;
+}
+
+.image-preview p {
+  font-size: 14px;
+  color: #888;
+}
+
+.select-group select {
+  font-size: 14px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+}

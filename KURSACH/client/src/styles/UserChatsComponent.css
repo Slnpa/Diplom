@@ -1,0 +1,62 @@
+/* UserChatsComponent.css */
+.container {
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+  }
+  
+  .loading {
+    text-align: center;
+    color: #555;
+  }
+  
+  .chatList {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .chatItem {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  
+  .chatText {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .noChats {
+    text-align: center;
+    color: #777;
+  }
+  

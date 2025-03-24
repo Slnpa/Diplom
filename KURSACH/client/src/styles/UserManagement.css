@@ -1,0 +1,43 @@
+.user-management {
+    padding: 20px;
+  }
+  
+  .user-management h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .user-management ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .user-management li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .user-management button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .user-management button:hover {
+    background-color: #0056b3;
+  }
+  
+  .error {
+    color: red;
+    font-weight: bold;
+  }
+  

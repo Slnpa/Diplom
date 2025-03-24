@@ -1,0 +1,183 @@
+/* src/components/Catalog.css */
+.catalog-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.catalog-header {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #444;
+}
+
+.property-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-card:hover {
+  transform: scale(1.05);
+}
+
+.property-image {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  object-fit: cover;
+  height: 200px;
+}
+
+.property-name {
+  font-size: 20px;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.property-description {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.property-location, .property-price {
+  font-size: 16px;
+  color: #444;
+}
+
+.owner-info {
+  font-size: 14px;
+  color: #888;
+  margin-top: 10px;
+}
+
+.bookings-header {
+  font-size: 18px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.booking-item {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.property-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  list-style-type: none;
+  padding: 0;
+}
+
+.property-list li {
+  margin-bottom: 20px;
+}
+
+/* src/components/Catalog.css */
+
+.delete-button {
+  background-color: #e74c3c; /* Красный цвет */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.delete-button:hover {
+  background-color: #c0392b; /* Темный красный при наведении */
+}
+
+.add-housing-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.add-housing-button:hover {
+  background-color: #45a049;
+}
+
+.booking-item {
+  font-size: 16px;
+}
+
+.active-booking {
+  color: red; /* Красный для активного бронирования */
+}
+
+.free-booking {
+  color: green; /* Зеленый для свободного жилья или истекшего бронирования */
+}
+
+.filters-container {
+  display: flex;
+  justify-content: space-between; /* Располагаем элементы по обе стороны */
+  gap: 20px; /* Расстояние между элементами */
+  margin-bottom: 20px; /* Отступ снизу */
+  align-items: center; /* Выравнивание элементов по центру по вертикали */
+}
+
+.search-container, .filter-container, .sort-container {
+  display: flex;
+  flex-direction: column;
+  width: 30%; /* Задаем ширину для каждого блока */
+}
+
+.search-input, .filter-select, .sort-select {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+.search-input:focus, .filter-select:focus, .sort-select:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+/* Если вы хотите, чтобы метки были на одной строке с полем ввода */
+.filter-container label,
+.sort-container label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+.search-container {
+  margin-top: 23px;
+}
+
+.property-name, .property-description, .property-location, .property-price {
+  white-space: nowrap; /* Текст в одну строку */
+  overflow: hidden; /* Скрыть текст, выходящий за пределы */
+  text-overflow: ellipsis; /* Добавить многоточие */
+}

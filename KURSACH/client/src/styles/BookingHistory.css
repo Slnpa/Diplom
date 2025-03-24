@@ -1,0 +1,47 @@
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.controls select {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.booking-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.booking-card {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: calc(33.333% - 15px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.booking-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.booking-details {
+  text-align: center;
+}
+
+.booking-details h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.booking-details p {
+  margin: 5px 0;
+}
