@@ -1,0 +1,139 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  password  String
+  email     String   @unique
+  role      Role     @default(USER)
+  properties Property[]  // Связь с жильем для владельцев
+  bookings   Booking[]   // Связь с бронированиями для пользователей
+  reviews    Review[]    // Обратная связь с отзывами
+
+  // Связи для чатов
+  ownedChats Chat[] @relation("OwnerChats")  // Чаты, где пользователь владелец
+  userChats  Chat[] @relation("UserChats")  // Чаты, где пользователь обычный пользователь
+  messages   Message[]                       // Сообщения, отправленные пользователем
+
+  isActive  Boolean  @default(true)  // Новое поле для блокировки пользователя
+}
+
+model Property {
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String
+  location      String
+  pricePerNight Int
+  ownerId       Int
+  owner         User           @relation(fields: [ownerId], references: [id])
+  bookings      Booking[]
+  imageUrl      String?
+  categoryId    Int
+  category      Category        @relation(fields: [categoryId], references: [id])
+  criteria      PropertyCriterion[]
+  reviews       Review[]
+
+  // Добавляем связь с чатами
+  chats         Chat[]          @relation("PropertyChats")  // Связь с чатами
+}
+
+
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  propertyId  Int
+  property    Property   @relation(fields: [propertyId], references: [id])
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  rating      Int        // Оценка (1-5)
+  comment     String?    // Комментарий
+  createdAt   DateTime   @default(now())
+
+  @@unique([propertyId, userId]) // Один отзыв от пользователя на жилье
+}
+
+model Booking {
+  id           Int             @id @default(autoincrement())
+  propertyId   Int
+  property     Property        @relation(fields: [propertyId], references: [id])
+  userId       Int
+  user         User            @relation(fields: [userId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  status       BookingStatus   @default(PENDING)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+// Новая модель: Категории жилья
+model Category {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique  // Уникальное название категории
+  properties  Property[]  // Связь с жильем
+}
+
+// Новая модель: Критерии жилья
+model Criterion {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique  // Уникальное название критерия
+  properties  PropertyCriterion[]
+}
+
+// Промежуточная таблица для связи "Многие ко многим" между жильем и критериями
+model PropertyCriterion {
+  propertyId  Int
+  property    Property  @relation(fields: [propertyId], references: [id])
+  criterionId Int
+  criterion   Criterion @relation(fields: [criterionId], references: [id])
+
+  @@id([propertyId, criterionId]) // Составной первичный ключ
+}
+
+model Chat {
+  id            Int       @id @default(autoincrement())
+  ownerId       Int       // Владелец недвижимости
+  owner         User      @relation("OwnerChats", fields: [ownerId], references: [id])
+  userId        Int       // Пользователь
+  user          User      @relation("UserChats", fields: [userId], references: [id])
+  propertyId    Int       // ID жилья
+  property      Property  @relation("PropertyChats", fields: [propertyId], references: [id]) // Связь с жильем
+  messages      Message[] // Сообщения чата
+  createdAt     DateTime  @default(now())
+}
+
+
+
+
+model Message {
+  id            Int       @id @default(autoincrement())
+  chatId        Int
+  chat          Chat      @relation(fields: [chatId], references: [id])
+  senderId      Int
+  sender        User      @relation(fields: [senderId], references: [id])
+  content       String
+  createdAt     DateTime  @default(now())
+}
+
+
+// Enum для роли пользователя
+enum Role {
+  USER
+  OWNER
+  ADMIN
+}
+
+// Enum для статуса бронирования
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
