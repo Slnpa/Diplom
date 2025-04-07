@@ -11,7 +11,7 @@ const CreateHousing: React.FC = () => {
     categoryId: '', // Новый параметр для категории
     criteria: [] as string[], // Новый параметр для критериев (массив)
   });
-  const [image, setImage] = useState<File | null>(null); // для хранения выбранного изображения
+  const [images, setImages] = useState<File[]>([]); // теперь массив файлов
   const [categories, setCategories] = useState<any[]>([]); // Состояние для списка категорий
   const [criteriaList, setCriteriaList] = useState<any[]>([]); // Состояние для списка критериев
 
@@ -71,7 +71,8 @@ const CreateHousing: React.FC = () => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImage(e.target.files[0]); // сохраняем выбранный файл
+      const selectedFiles = Array.from(e.target.files);
+      setImages(selectedFiles); // сохраняем сразу все выбранные файлы
     }
   };
 
@@ -92,8 +93,10 @@ const CreateHousing: React.FC = () => {
       });
     }
 
-    if (image) {
-      formDataToSend.append('image', image); // добавляем изображение
+    if (images) {
+      images.forEach((file) => {
+        formDataToSend.append('images', file); // несколько файлов с одним и тем же ключом
+      });
     }
   
     formDataToSend.forEach((value, key) => {
@@ -117,7 +120,7 @@ const CreateHousing: React.FC = () => {
           categoryId: '',
           criteria: [],
         });
-        setImage(null);
+        setImages([]);
       } else {
         alert('Ошибка при создании жилья');
       }
@@ -191,12 +194,13 @@ const CreateHousing: React.FC = () => {
               </label>
             ))}
           </div>
-        <input
+          <input
           type="file"
           accept="image/*"
+          multiple
           onChange={handleImageChange}
           required
-        />
+          />
         <button type="submit">Создать</button>
       </form>
     </div>

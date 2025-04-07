@@ -90,42 +90,50 @@ export const deleteHousing = async (req: Request, res: Response): Promise<void> 
 
 export const createHousing = async (req: Request, res: Response): Promise<void> => {
   const { name, description, location, pricePerNight, ownerId, categoryId, criteria } = req.body;
-  const imageUrl = req.file ? `/images/${req.file.filename}` : null;
+  const files = req.files as Express.Multer.File[];
 
-  // Проверка обязательных полей
   if (!name || !description || !location || !pricePerNight || !ownerId || !categoryId) {
-    res.status(400).json({ message: 'Все поля, кроме изображения, обязательны' });
+    res.status(400).json({ message: 'Все поля, кроме изображений, обязательны' });
     return;
   }
 
   try {
-    // Создание нового жилья
     const newProperty = await prisma.property.create({
       data: {
         name,
         description,
         location,
-        pricePerNight: parseFloat(pricePerNight), // Убедитесь, что это число
+        pricePerNight: parseFloat(pricePerNight),
         owner: {
-          connect: { id: parseInt(ownerId) }, // Связь с владельцем
+          connect: { id: parseInt(ownerId) },
         },
         category: {
-          connect: { id: parseInt(categoryId) }, // Связь с категорией
+          connect: { id: parseInt(categoryId) },
         },
-        imageUrl,
       },
     });
 
-    // Если переданы критерии, связываем их с жильем через промежуточную таблицу
-    if (criteria && criteria.length > 0) {
-      const criterionConnections = criteria.map((criterionId: string) => ({
-        propertyId: newProperty.id, // Связь с Property
-        criterionId: parseInt(criterionId), // Связь с Criterion
+    // Добавление изображений
+    if (files && files.length > 0) {
+      const imageData = files.map((file) => ({
+        propertyId: newProperty.id,
+        imageUrl: `/images/${file.filename}`,
       }));
 
-      // Создаем связи с критериями
+      await prisma.propertyImage.createMany({
+        data: imageData,
+      });
+    }
+
+    // Добавление критериев
+    if (criteria && criteria.length > 0) {
+      const criterionConnections = criteria.map((criterionId: string) => ({
+        propertyId: newProperty.id,
+        criterionId: parseInt(criterionId),
+      }));
+
       await prisma.propertyCriterion.createMany({
-        data: criterionConnections, // Добавляем связи в промежуточную таблицу
+        data: criterionConnections,
       });
     }
 
@@ -136,68 +144,59 @@ export const createHousing = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+
 // Получение всех доступных объектов жилья
 export const getCatalog = async (req: Request, res: Response): Promise<void> => {
   try {
     // Получаем userId и userRole из query-параметров
     const userId = parseInt(req.query.userId as string); // Получаем userId из query
     const userRole = req.query.userRole as string; // Получаем userRole из query
-    // Если роль OWNER, фильтруем жилье по ownerId
-    const housing = userRole === 'OWNER' && userId
-      ? await prisma.property.findMany({
-          where: {
-            ownerId: userId, // Фильтруем по ownerId
+    
+    // Определение фильтрации по роли
+    const housingQuery = {
+      include: {
+        owner: {
+          select: { login: true, email: true, id: true },
+        },
+        bookings: {
+          select: { startDate: true, endDate: true, status: true },
+        },
+        category: true, // Добавляем информацию о категории жилья
+        images: {
+          take: 1, // Ограничиваем количество изображений до 1
+          select: {
+            imageUrl: true, // Выбираем только URL изображения
           },
-          include: {
-            owner: {
-              select: { login: true, email: true, id: true },
-            },
-            bookings: {
-              select: { startDate: true, endDate: true, status: true },
-            },
-            category: true, // Добавляем информацию о категории жилья
+        },
+      },
+    };
+
+    let housing;
+    if (userRole === 'OWNER' && userId) {
+      housing = await prisma.property.findMany({
+        where: {
+          ownerId: userId, // Фильтруем по ownerId
+        },
+        ...housingQuery,
+      });
+    } else if (userRole !== 'OWNER' && userRole !== 'ADMIN' && userId) {
+      housing = await prisma.property.findMany({
+        where: {
+          ownerId: {
+            not: userId, // Фильтруем по ownerId, исключая текущего пользователя
           },
-        })
-      : userRole !== 'OWNER' && userRole !== 'ADMIN' && userId
-      ? await prisma.property.findMany({
-          where: {
-            ownerId: {
-              not: userId, // Фильтруем по ownerId, исключая текущего пользователя
-            },
-          },
-          include: {
-            owner: {
-              select: { login: true, email: true, id: true },
-            },
-            bookings: {
-              select: { startDate: true, endDate: true, status: true },
-            },
-            category: true, // Добавляем информацию о категории жилья
-          },
-        })
-        : userRole === 'ADMIN' && userId
-      ? await prisma.property.findMany({
-          include: {
-            owner: {
-              select: { login: true, email: true, id: true },
-            },
-            bookings: {
-              select: { startDate: true, endDate: true, status: true },
-            },
-            category: true, // Добавляем информацию о категории жилья
-          },
-        })
-      : await prisma.property.findMany({
-          include: {
-            owner: {
-              select: { login: true, email: true, id: true },
-            },
-            bookings: {
-              select: { startDate: true, endDate: true, status: true },
-            },
-            category: true, // Добавляем информацию о категории жилья
-          },
-        });
+        },
+        ...housingQuery,
+      });
+    } else if (userRole === 'ADMIN' && userId) {
+      housing = await prisma.property.findMany({
+        ...housingQuery,
+      });
+    } else {
+      housing = await prisma.property.findMany({
+        ...housingQuery,
+      });
+    }
 
     // Если жилье не найдено
     if (housing.length === 0) {
@@ -212,4 +211,5 @@ export const getCatalog = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: 'Ошибка сервера при получении каталога жилья', error });
   }
 };
+
 

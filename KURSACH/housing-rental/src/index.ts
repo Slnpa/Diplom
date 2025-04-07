@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.post('/housing', upload.single('image'), createHousing); // Маршрут для создания жилья с загрузкой изображения
+app.post('/housing', upload.array('images', 10), createHousing); // Маршрут для создания жилья с загрузкой изображения
 app.use('/images', express.static(path.join(__dirname, '../images')));
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes); // Применяем маршруты для работы с пользователями

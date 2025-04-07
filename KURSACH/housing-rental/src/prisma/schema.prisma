@@ -36,15 +36,18 @@ model Property {
   ownerId       Int
   owner         User           @relation(fields: [ownerId], references: [id])
   bookings      Booking[]
-  imageUrl      String?
   categoryId    Int
   category      Category        @relation(fields: [categoryId], references: [id])
   criteria      PropertyCriterion[]
   reviews       Review[]
 
   // Добавляем связь с чатами
-  chats         Chat[]          @relation("PropertyChats")  // Связь с чатами
+  chats         Chat[]          @relation("PropertyChats")
+
+  // Удалено поле imageUrl
+  images        PropertyImage[] // Связь с изображениями
 }
+
 
 
 
@@ -137,3 +140,11 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
 }
+
+model PropertyImage {
+  id         Int      @id @default(autoincrement())
+  imageUrl   String
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+

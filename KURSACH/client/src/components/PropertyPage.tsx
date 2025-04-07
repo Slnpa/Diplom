@@ -6,6 +6,10 @@ import BookingForm from './BookingForm';
 import Reviews from './Review'; // Импортируем компонент Reviews
 import { useBookingActions } from './useBookingActions';
 import ChatComponent from './ChatComponent';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
 
 interface Property {
   id: number;
@@ -13,7 +17,7 @@ interface Property {
   description: string;
   location: string;
   pricePerNight: number;
-  imageUrl: string;
+  images: PropertyImage[]; // Изменяем тип на массив изображений
   owner: {
     id: number;
     role: string;
@@ -33,6 +37,10 @@ interface Property {
     status: string;
     userId: number;
   }[]; 
+}
+interface PropertyImage {
+  id: number;
+  imageUrl: string;
 }
 
 const PropertyPage: React.FC = () => {
@@ -138,7 +146,35 @@ const PropertyPage: React.FC = () => {
   return (
     <div className="property-page">
       <h1>{property.name}</h1>
-      <img src={`http://localhost:3000${property.imageUrl}`} alt={property.name} className="property-image" />
+      {property.images.length > 1 ? (
+  <Slider
+    dots={true}
+    infinite={true}
+    speed={500}
+    slidesToShow={1}
+    slidesToScroll={1}
+    arrows={true}
+  >
+    {property.images.map((image) => (
+      <div key={image.id}>
+        <img
+          src={`http://localhost:3000${image.imageUrl}`}
+          alt={`Жилье ${image.id}`}
+          style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+        />
+      </div>
+    ))}
+  </Slider>
+) : (
+  property.images.length === 1 && (
+    <img
+      src={`http://localhost:3000${property.images[0].imageUrl}`}
+      alt={`Жилье ${property.images[0].id}`}
+      style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+    />
+  )
+)}
+
       <p><strong>Описание:</strong> {property.description}</p>
       <p><strong>Местоположение:</strong> {property.location}</p>
       <p><strong>Цена за ночь:</strong> {property.pricePerNight} руб.</p>

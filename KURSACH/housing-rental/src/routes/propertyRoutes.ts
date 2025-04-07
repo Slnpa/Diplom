@@ -35,7 +35,7 @@ router.put('/booking/:bookingId/accept', authenticate, acceptBooking);
 router.put('/booking/:bookingId/cancel', authenticate, cancelBooking);
 
 // Редактирование информации о жилье с загрузкой изображения
-router.put('/:id', upload.single('image'), updateProperty);
+router.put('/:id', upload.array('images'), updateProperty);  // Используем .array('images') вместо .single('image')
 
 router.get('/:propertyId/reviews', getReviewsByProperty);
 router.post('/reviews', addReview);

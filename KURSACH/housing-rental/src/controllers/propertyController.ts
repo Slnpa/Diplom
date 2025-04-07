@@ -11,12 +11,13 @@ export const getPropertyDetails = async (req: Request, res: Response): Promise<v
         id: parseInt(id), // ID жилья
       },
       include: {
-        owner: true, // Включаем владельца
-        category: true, // Включаем категорию
-        bookings: true, // Включаем бронирования
+        owner: true,           // Включаем владельца
+        category: true,        // Включаем категорию
+        bookings: true,        // Включаем бронирования
+        images: true,          // Включаем изображения
         criteria: {
           include: {
-            criterion: true, // Включаем данные о критериях через промежуточную таблицу
+            criterion: true,   // Включаем сами критерии
           },
         },
       },
@@ -27,13 +28,14 @@ export const getPropertyDetails = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    // Преобразуем данные для удобного отображения критериев
-    const propertyWithCriteria = {
+    // Преобразуем данные
+    const propertyWithDetails = {
       ...property,
-      criteria: property.criteria.map((pc) => pc.criterion), // Извлекаем только критерии
+      criteria: property.criteria.map((pc) => pc.criterion),
+      images: property.images,  // Извлекаем путь изображения
     };
 
-    res.status(200).json(propertyWithCriteria);
+    res.status(200).json(propertyWithDetails);
   } catch (error) {
     console.error('Ошибка при получении жилья:', error);
     res.status(500).json({ message: 'Ошибка сервера', error });
@@ -254,8 +256,20 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
 
 export const updateProperty = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  const { name, description, location, pricePerNight, categoryId, criteria } = req.body;
-  const imageUrl = req.file ? `/images/${req.file.filename}` : null;
+  const { name, description, location, pricePerNight, categoryId, criteria, imageIdsToDelete } = req.body;
+
+  // Если imageIdsToDelete это строка, пробуем преобразовать её в массив чисел
+  let parsedImageIdsToDelete: number[] = [];
+  if (typeof imageIdsToDelete === 'string') {
+    try {
+      parsedImageIdsToDelete = JSON.parse(imageIdsToDelete); // Преобразуем строку в массив
+    } catch (error) {
+      console.error('Ошибка при парсинге imageIdsToDelete:', error);
+    }
+  } else if (Array.isArray(imageIdsToDelete)) {
+    // Если это уже массив, просто присваиваем его
+    parsedImageIdsToDelete = imageIdsToDelete;
+  }
 
   // Инициализируем массив для валидных критериев
   let validCriteria: number[] = [];
@@ -275,17 +289,16 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       }
     } catch (error) {
       console.error('Ошибка при парсинге строки criteria:', error);
-      // В случае ошибки можем вернуть пустой массив или какие-то данные об ошибке
     }
   } else if (Array.isArray(criteria)) {
-    // Если criteria уже является массивом, то просто фильтруем его
+    // Если criteria уже является массивом, просто фильтруем его
     validCriteria = criteria.filter((id: any) => !isNaN(id)).map(Number);
   }
 
   try {
     const property = await prisma.property.findUnique({
       where: { id: Number(id) },
-      include: { criteria: true }, // Включаем связанные с жильём критерии
+      include: { criteria: true, images: true }, // Включаем связанные с жильём изображения и критерии
     });
 
     if (!property) {
@@ -293,6 +306,35 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+    // Если нужно удалить изображения, удаляем их
+    if (parsedImageIdsToDelete && parsedImageIdsToDelete.length > 0) {
+      await prisma.propertyImage.deleteMany({
+        where: {
+          id: { in: parsedImageIdsToDelete },
+          propertyId: property.id, // Удаляем только изображения, связанные с данным жильем
+        },
+      });
+    }
+
+    // Обрабатываем новые изображения, если они есть
+    console.log(req.files)
+    const files = req.files as Express.Multer.File[];
+
+
+    // Добавляем новые изображения, если они есть
+    // Добавление изображений
+    if (files && files.length > 0) {
+      const imageData = files.map((file) => ({
+        propertyId: Number(id),
+        imageUrl: `/images/${file.filename}`,
+      }));
+
+      await prisma.propertyImage.createMany({
+        data: imageData,
+      });
+    }
+
+    // Обновляем основную информацию о жилье
     const updatedProperty = await prisma.property.update({
       where: { id: Number(id) },
       data: {
@@ -301,7 +343,6 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
         location,
         pricePerNight: parseFloat(pricePerNight),
         category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined,
-        ...(imageUrl && { imageUrl }), // Обновляем изображение, если оно передано
       },
     });
 
@@ -324,7 +365,13 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
       });
     }
 
-    res.status(200).json(updatedProperty);
+    // Получаем обновленные данные о жилье, включая изображения
+    const propertyWithUpdatedImages = await prisma.property.findUnique({
+      where: { id: updatedProperty.id },
+      include: { images: true },
+    });
+
+    res.status(200).json(propertyWithUpdatedImages);
   } catch (error) {
     console.error('Ошибка при обновлении жилья:', error);
     res.status(500).json({ message: 'Ошибка сервера при обновлении жилья', error });

@@ -9,7 +9,7 @@ interface Property {
   description: string;
   location: string;
   pricePerNight: number;
-  imageUrl: string;
+  images: { imageUrl: string }[]; // Обновляем поле images, оно теперь массив
   owner: {
     login: string;
     email: string;
@@ -181,8 +181,9 @@ const Catalog: React.FC = () => {
               className="property-card"
               onClick={() => handlePropertyClick(property.id)}
             >
+              {/* Используем первое изображение из массива images */}
               <img
-                src={`http://localhost:3000${property.imageUrl}`}
+                src={`http://localhost:3000${property.images[0]?.imageUrl}`}
                 alt={property.name}
                 className="property-image"
               />

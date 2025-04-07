@@ -8,11 +8,14 @@ interface Property {
   description: string;
   location: string;
   pricePerNight: number;
-  imageUrl: string;
   category: { id: number, name: string };
   criteria: { id: number, name: string }[];
+  images: PropertyImage[]; // Изменяем тип на массив изображений
 }
-
+interface PropertyImage {
+  id: number;
+  imageUrl: string;
+}
 const EditProperty: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,12 +24,13 @@ const EditProperty: React.FC = () => {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [pricePerNight, setPricePerNight] = useState('');
-  const [image, setImage] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]); // Для хранения новых изображений
   const [categories, setCategories] = useState<{ id: number, name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedCriteria, setSelectedCriteria] = useState<number[]>([]);
   const [criteriaList, setCriteriaList] = useState<{ id: number, name: string }[]>([]);
   const [message, setMessage] = useState('');
+  const [imagesToDelete, setImagesToDelete] = useState<number[]>([]); // Список удалённых изображений
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -40,7 +44,6 @@ const EditProperty: React.FC = () => {
         setPricePerNight(data.pricePerNight.toString());
         setSelectedCategory(data.category.id);
         setSelectedCriteria(data.criteria.map((criterion: { id: number }) => criterion.id));
-        setImage(null); // Сбросим изображение после загрузки
       } catch (error) {
         console.error('Ошибка при загрузке данных жилья:', error);
       }
@@ -81,13 +84,12 @@ const EditProperty: React.FC = () => {
     formData.append('pricePerNight', pricePerNight);
     formData.append('categoryId', String(selectedCategory));
     formData.append('criteria', JSON.stringify(selectedCriteria));
+    formData.append('imageIdsToDelete', JSON.stringify(imagesToDelete)); // Добавляем изображения для удаления
 
-    // Добавляем изображение (если оно выбрано или если старое изображение доступно)
-    if (image instanceof File) {
-      formData.append('image', image); // Добавляем новый файл
-    } else if (image && typeof image === 'string') {
-      formData.append('image', image); // Отправляем старое изображение, если оно есть
-    }
+    // Добавляем новые изображения
+    imageFiles.forEach(file => {
+      formData.append('images', file); // Используем ключ 'images' для добавления новых изображений
+    });
 
     try {
       const response = await fetch(`http://localhost:3000/property/${id}`, {
@@ -117,6 +119,17 @@ const EditProperty: React.FC = () => {
       console.error('Ошибка при отправке данных:', error);
       setMessage('Ошибка при обновлении жилья');
     }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const selectedFiles = Array.from(e.target.files);
+        setImageFiles(selectedFiles); // сохраняем сразу все выбранные файлы
+      }
+    };
+
+  const handleDeleteImage = (imageId: number) => {
+    setImagesToDelete((prev) => [...prev, imageId]); // Добавляем ID изображения в список на удаление
   };
 
   if (!property || !categories.length || !criteriaList.length) {
@@ -213,20 +226,50 @@ const EditProperty: React.FC = () => {
           </div>
         </div>
         <div className="form-group">
-          <label htmlFor="image">Изображение</label>
-          {property?.imageUrl && !image && (
-            <div>
-              <img src={`http://localhost:3000${property.imageUrl}`} alt="Текущее изображение" width="100" />
-              <p>Изображение не изменено</p>
-            </div>
-          )}
+          <label htmlFor="image">Изображения</label>
           <input
             id="image"
             type="file"
             accept="image/*"
-            onChange={(e) => setImage(e.target.files ? e.target.files[0] :null)}
+            multiple
+            onChange={handleImageChange}
             className="form-control"
           />
+<div className="current-images">
+  {property.images.map((image) => {
+    const isMarkedForDeletion = imagesToDelete.includes(image.id);
+
+    return (
+      <div key={image.id} style={{ position: 'relative', display: 'inline-block', margin: '10px' }}>
+        <img 
+          src={`http://localhost:3000${image.imageUrl}`} 
+          alt="Текущее изображение" 
+          width="100"
+          style={{
+            opacity: isMarkedForDeletion ? 0.5 : 1,
+            border: isMarkedForDeletion ? '2px solid red' : 'none',
+            borderRadius: '8px',
+            transition: 'all 0.3s ease'
+          }}
+        />
+        {isMarkedForDeletion ? (
+          <div style={{ color: 'red', marginTop: '5px', textAlign: 'center' }}>Будет удалено</div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => handleDeleteImage(image.id)}
+            style={{ display: 'block', marginTop: '5px' }}
+          >
+            Удалить
+          </button>
+        )}
+      </div>
+    );
+  })}
+</div>
+
+
+
         </div>
         <button type="submit" className="btn-submit">Сохранить</button>
       </form>
