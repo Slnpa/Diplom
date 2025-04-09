@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { decodeJwt } from 'jose';
-import { setUserRole, setUserName, setUserId, setUserActiveStatus } from '../slices/userSlice';
+import { setUserRole, setUserName, setUserId, setUserActiveStatus, setUserVerifiedStatus } from '../slices/userSlice';
 import '../styles/Register.css';
 
 const Register: React.FC = () => {
@@ -40,26 +40,26 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
+  
     try {
       const response = await fetch('http://localhost:3000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login, email, password }),
       });
-
+  
       const data = await response.json();
       setMessage(data.message || 'Регистрация успешна');
-
+  
       if (data.token) {
         localStorage.setItem('token', data.token);
-
+  
         // Декодируем токен
         const decodedToken: any = decodeJwt(data.token);
-
+  
         // Обновляем данные в localStorage и Redux
         if (decodedToken) {
-          const { role, userId, isActive } = decodedToken;
+          const { role, userId, isActive, isVerified } = decodedToken;
           if (role) {
             localStorage.setItem('role', role);
             dispatch(setUserRole(role));
@@ -72,10 +72,14 @@ const Register: React.FC = () => {
             localStorage.setItem('isActive', String(isActive));
             dispatch(setUserActiveStatus(isActive));
           }
+          if (isVerified !== undefined) {
+            localStorage.setItem('isVerified', String(isVerified));
+            dispatch(setUserVerifiedStatus(isVerified)); // Сохранение статуса верификации в Redux
+          }
           localStorage.setItem('userName', login);
           dispatch(setUserName(login));
         }
-
+  
         // Перенаправление на каталог
         if (decodedToken.isActive === false) {
           setMessage('Ваш аккаунт заблокирован');

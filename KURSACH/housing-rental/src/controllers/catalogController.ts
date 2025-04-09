@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../db';
+import { multiUpload } from '../middleware/upload'
 
 export const deleteHousing = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
@@ -87,23 +88,24 @@ export const deleteHousing = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-
 export const createHousing = async (req: Request, res: Response): Promise<void> => {
   const { name, description, location, pricePerNight, ownerId, categoryId, criteria } = req.body;
-  const files = req.files as Express.Multer.File[];
 
+  // Валидация обязательных полей
   if (!name || !description || !location || !pricePerNight || !ownerId || !categoryId) {
-    res.status(400).json({ message: 'Все поля, кроме изображений, обязательны' });
+    res.status(400).json({ message: 'Все поля, кроме изображений и документов, обязательны' });
     return;
   }
 
   try {
+    // Создание жилья
     const newProperty = await prisma.property.create({
       data: {
         name,
         description,
         location,
         pricePerNight: parseFloat(pricePerNight),
+        status: 'PENDING', // Статус по умолчанию
         owner: {
           connect: { id: parseInt(ownerId) },
         },
@@ -113,9 +115,10 @@ export const createHousing = async (req: Request, res: Response): Promise<void> 
       },
     });
 
-    // Добавление изображений
-    if (files && files.length > 0) {
-      const imageData = files.map((file) => ({
+    // Обработка изображений
+    const images = (req.files as any)?.images as Express.Multer.File[] | undefined;
+    if (images && images.length > 0) {
+      const imageData = images.map((file) => ({
         propertyId: newProperty.id,
         imageUrl: `/images/${file.filename}`,
       }));
@@ -125,15 +128,29 @@ export const createHousing = async (req: Request, res: Response): Promise<void> 
       });
     }
 
-    // Добавление критериев
+    // Обработка критериев
     if (criteria && criteria.length > 0) {
-      const criterionConnections = criteria.map((criterionId: string) => ({
+      const criteriaArray = Array.isArray(criteria) ? criteria : [criteria]; // поддержка одиночного значения
+      const criterionConnections = criteriaArray.map((criterionId: string) => ({
         propertyId: newProperty.id,
         criterionId: parseInt(criterionId),
       }));
 
       await prisma.propertyCriterion.createMany({
         data: criterionConnections,
+      });
+    }
+
+    // Обработка документов жилья
+    const housingDocuments = (req.files as any)?.housingDocuments as Express.Multer.File[] | undefined;
+    if (housingDocuments && housingDocuments.length > 0) {
+      const documentData = housingDocuments.map((file) => ({
+        propertyId: newProperty.id,
+        fileUrl: `/uploads/housingDocuments/${file.filename}`,
+      }));
+
+      await prisma.propertyDocument.createMany({
+        data: documentData,
       });
     }
 
@@ -148,11 +165,9 @@ export const createHousing = async (req: Request, res: Response): Promise<void> 
 // Получение всех доступных объектов жилья
 export const getCatalog = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Получаем userId и userRole из query-параметров
-    const userId = parseInt(req.query.userId as string); // Получаем userId из query
-    const userRole = req.query.userRole as string; // Получаем userRole из query
-    
-    // Определение фильтрации по роли
+    const userId = parseInt(req.query.userId as string);
+    const userRole = req.query.userRole as string;
+
     const housingQuery = {
       include: {
         owner: {
@@ -161,55 +176,58 @@ export const getCatalog = async (req: Request, res: Response): Promise<void> => 
         bookings: {
           select: { startDate: true, endDate: true, status: true },
         },
-        category: true, // Добавляем информацию о категории жилья
+        category: true,
         images: {
-          take: 1, // Ограничиваем количество изображений до 1
-          select: {
-            imageUrl: true, // Выбираем только URL изображения
-          },
+          take: 1,
+          select: { imageUrl: true },
+        },
+        criteria: {
+          include: { criterion: true },
         },
       },
     };
 
     let housing;
+
     if (userRole === 'OWNER' && userId) {
+      // Владелец видит только своё жильё
       housing = await prisma.property.findMany({
-        where: {
-          ownerId: userId, // Фильтруем по ownerId
-        },
-        ...housingQuery,
-      });
-    } else if (userRole !== 'OWNER' && userRole !== 'ADMIN' && userId) {
-      housing = await prisma.property.findMany({
-        where: {
-          ownerId: {
-            not: userId, // Фильтруем по ownerId, исключая текущего пользователя
-          },
-        },
+        where: { ownerId: userId },
         ...housingQuery,
       });
     } else if (userRole === 'ADMIN' && userId) {
+      // Админ видит всё (без фильтра по статусу)
       housing = await prisma.property.findMany({
         ...housingQuery,
       });
-    } else {
+    } else if (userId) {
+      // Остальные (например, USER) — только одобренное чужое жильё
       housing = await prisma.property.findMany({
+        where: {
+          ownerId: { not: userId },
+          status: 'APPROVED',
+        },
+        ...housingQuery,
+      });
+    } else {
+      // Незарегистрированный пользователь — только одобренное жильё
+      housing = await prisma.property.findMany({
+        where: { status: 'APPROVED' },
         ...housingQuery,
       });
     }
 
-    // Если жилье не найдено
     if (housing.length === 0) {
       res.status(404).json({ message: 'Жилье не найдено' });
       return;
     }
 
-    // Отправляем найденное жилье
     res.status(200).json(housing);
   } catch (error) {
     console.error('Ошибка при получении каталога жилья:', error);
     res.status(500).json({ message: 'Ошибка сервера при получении каталога жилья', error });
   }
 };
+
 
 

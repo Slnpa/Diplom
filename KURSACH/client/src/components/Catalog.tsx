@@ -9,7 +9,7 @@ interface Property {
   description: string;
   location: string;
   pricePerNight: number;
-  images: { imageUrl: string }[]; // Обновляем поле images, оно теперь массив
+  images: { imageUrl: string }[];
   owner: {
     login: string;
     email: string;
@@ -18,15 +18,28 @@ interface Property {
   category: {
     name: string;
   };
+  criteria: {
+    criterion: {
+      id: number;
+      name: string;
+    };
+  }[];
 }
 
 interface Category {
   name: string;
 }
 
+interface Criterion {
+  id: number;
+  name: string;
+}
+
 const Catalog: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [criteria, setCriteria] = useState<Criterion[]>([]);
+  const [selectedCriteria, setSelectedCriteria] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortType, setSortType] = useState<string>('price');
   const [filterCategory, setFilterCategory] = useState<string>('');
@@ -37,13 +50,20 @@ const Catalog: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/admin/categories');
-        const data = await response.json();
-        setCategories(data);
+        const [catRes, critRes] = await Promise.all([
+          fetch('http://localhost:3000/admin/categories'),
+          fetch('http://localhost:3000/admin/criteria'),
+        ]);
+        const [catData, critData] = await Promise.all([
+          catRes.json(),
+          critRes.json(),
+        ]);
+        setCategories(catData);
+        setCriteria(critData);
       } catch (error) {
-        console.error('Ошибка при загрузке категорий:', error);
+        console.error('Ошибка при загрузке данных:', error);
       }
     };
 
@@ -51,7 +71,7 @@ const Catalog: React.FC = () => {
       try {
         let url = 'http://localhost:3000/catalog';
         if (userId) {
-          url = `http://localhost:3000/catalog?userRole=${userRole}&userId=${userId}`;
+          url += `?userRole=${userRole}&userId=${userId}`;
         }
 
         const response = await fetch(url);
@@ -59,7 +79,6 @@ const Catalog: React.FC = () => {
         if (Array.isArray(data)) {
           setProperties(data);
         } else {
-          console.error('Полученные данные не являются массивом:', data);
           setProperties([]);
         }
       } catch (error) {
@@ -69,7 +88,7 @@ const Catalog: React.FC = () => {
       }
     };
 
-    fetchCategories();
+    fetchData();
     fetchCatalog();
   }, [userRole, userId]);
 
@@ -93,12 +112,9 @@ const Catalog: React.FC = () => {
           setProperties(properties.filter((property) => property.id !== id));
           alert('Жилье успешно удалено');
         } else {
-          const errorData = await response.json();
-          console.error('Ошибка при удалении жилья:', errorData);
           alert('Ошибка при удалении жилья');
         }
       } catch (error) {
-        console.error('Ошибка при удалении жилья:', error);
         alert('Ошибка при удалении жилья');
       }
     }
@@ -112,29 +128,36 @@ const Catalog: React.FC = () => {
     navigate(`/property/${id}`);
   };
 
-  const sortedProperties = [...properties]
-    .sort((a, b) => {
-      if (sortType === 'price') {
-        return a.pricePerNight - b.pricePerNight;
-      }
-      return a.name.localeCompare(b.name);
-    })
+  const handleCriterionToggle = (id: number) => {
+    setSelectedCriteria((prev) =>
+      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
+    );
+  };
+
+  const filteredProperties = [...properties]
     .filter((property) => {
-      if (filterCategory && property.category.name !== filterCategory) {
-        return false;
+      if (filterCategory && property.category.name !== filterCategory) return false;
+      if (
+        searchQuery &&
+        !property.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) return false;
+
+      if (selectedCriteria.length > 0) {
+        const propertyCriterionIds = property.criteria.map((c) => c.criterion.id);
+        return selectedCriteria.every((cid) => propertyCriterionIds.includes(cid));
       }
-      if (property.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return true;
-      }
-      return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortType === 'price') return a.pricePerNight - b.pricePerNight;
+      return a.name.localeCompare(b.name);
     });
 
   if (loading) return <div>Загрузка...</div>;
 
   return (
     <div className="catalog-container">
-      <h1 className="catalog-header">Каталог жилья</h1>
-
       {(userRole === 'OWNER') && (
         <button onClick={handleAddHousing} className="add-housing-button">
           Добавить жилье
@@ -153,7 +176,7 @@ const Catalog: React.FC = () => {
         </div>
 
         <div className="filter-container">
-          <label>Фильтровать по категории: </label>
+          <label>Фильтр по категории: </label>
           <select onChange={(e) => setFilterCategory(e.target.value)} className="filter-select">
             <option value="">Все</option>
             {categories.map((category, index) => (
@@ -161,6 +184,24 @@ const Catalog: React.FC = () => {
             ))}
           </select>
         </div>
+
+        <div className="criteria-container">
+  <label>Критерии:</label>
+  <div className="criteria-checkboxes">
+    {criteria.map((crit) => (
+      <label key={crit.id} className="criterion-label">
+        <input
+          type="checkbox"
+          value={crit.id}
+          checked={selectedCriteria.includes(crit.id)}
+          onChange={() => handleCriterionToggle(crit.id)}
+        />
+        {crit.name}
+      </label>
+    ))}
+  </div>
+</div>
+
 
         <div className="sort-container">
           <label>Сортировка: </label>
@@ -171,28 +212,32 @@ const Catalog: React.FC = () => {
         </div>
       </div>
 
-      {sortedProperties.length === 0 ? (
+      {filteredProperties.length === 0 ? (
         <p>Жилье не найдено</p>
       ) : (
         <ul className="property-list">
-          {sortedProperties.map((property) => (
+          {filteredProperties.map((property) => (
             <li
               key={property.id}
               className="property-card"
               onClick={() => handlePropertyClick(property.id)}
             >
-              {/* Используем первое изображение из массива images */}
               <img
                 src={`http://localhost:3000${property.images[0]?.imageUrl}`}
                 alt={property.name}
                 className="property-image"
               />
-              <h2 className="property-name">{property.name}</h2>
-              <p className="property-description">{property.description}</p>
-              <p className="property-location">Местоположение: {property.location}</p>
-              <p className="property-price">Цена за ночь: {property.pricePerNight} руб.</p>
-              <p className="property-category">Категория: {property.category.name}</p>
-              <div className="owner-info">
+              <h2>{property.name}</h2>
+              <p>{property.description}</p>
+              <p>Местоположение: {property.location}</p>
+              <p>Цена за ночь: {property.pricePerNight} руб.</p>
+              <p>Категория: {property.category.name}</p>
+              <p>
+  Критерии:{' '}
+  {Array.isArray(property.criteria)
+    ? property.criteria.map((c) => c.criterion.name).join(', ')
+    : '—'}
+</p>              <div>
                 Владелец: {property.owner.login} ({property.owner.email})
               </div>
               {(userRole === 'ADMIN' || String(userId) === String(property.owner.id)) && (

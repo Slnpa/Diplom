@@ -2,13 +2,16 @@ import { Router } from 'express';
 import { 
   addCategory, 
   addCriterion, 
+  approveProperty, 
   deleteCategory, 
   deleteCriterion, 
   getAdminStats, 
   getCategories, 
   getCriteria, 
+  getPendingProperties, 
   getUsers,
-  toggleUserStatus
+  toggleUserStatus,
+  verifyUser
 } from '../controllers/adminController';
 
 const router = Router();
@@ -29,5 +32,13 @@ router.get('/users', getUsers);
 
 // Изменение статуса активности пользователя
 router.patch('/users/:userId/status', toggleUserStatus);
+
+router.patch('/verify-user/:userId', verifyUser);
+
+// Одобрение или отклонение жилья
+router.put('/properties/:propertyId/status', approveProperty);
+
+// GET /admin/properties/pending
+router.get('/properties/pending', getPendingProperties);
 
 export default router;

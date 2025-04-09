@@ -5,6 +5,7 @@ import '../styles/AdminPanel.css';
 import AdminStats from './AdminStats';
 import UserManagement from './UserManagement'; // Импортируем компонент UserManagement
 import '../styles/UserManagement.css'; // Импортируем стили для UserManagement
+import PropertyModeration from './PropertyModeration';
 
 const AdminPanel: React.FC = () => {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
@@ -130,7 +131,10 @@ const AdminPanel: React.FC = () => {
         />
         <button onClick={addCriterion}>Добавить критерий</button>
       </section>
-      
+      <section>
+  <h2>Модерация жилья</h2>
+  <PropertyModeration />
+</section>
       {/* Вставляем компонент UserManagement */}
       <section>
         <h2>Управление пользователями</h2>

@@ -157,3 +157,86 @@ export const toggleUserStatus = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Ошибка при изменении статуса пользователя' });
   }
 };
+
+export const verifyUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId } = req.params;
+
+  try {
+    // Получаем пользователя из базы данных
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) }
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'Пользователь не найден' });
+      return;
+    }
+
+    // Если пользователь уже верифицирован, возвращаем ошибку
+    if (user.isVerified) {
+      res.status(400).json({ message: 'Пользователь уже верифицирован' });
+      return;
+    }
+
+    // Меняем флаг isVerified на true
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { isVerified: true },
+    });
+
+    res.status(200).json({ message: 'Пользователь верифицирован', updatedUser });
+  } catch (error) {
+    console.error('Ошибка при верификации пользователя:', error);
+    res.status(500).json({ message: 'Ошибка сервера при верификации пользователя' });
+  }
+};
+
+export const approveProperty = async (req: Request, res: Response): Promise<void> => {
+  const { propertyId } = req.params;
+  const { status } = req.body;
+
+  if (!['APPROVED', 'REJECTED'].includes(status)) {
+    res.status(400).json({ message: 'Недопустимый статус' });
+    return;
+  }
+
+  try {
+    await prisma.property.update({
+      where: { id: parseInt(propertyId) },
+      data: { status },
+    });
+
+    res.sendStatus(204); // Ничего не возвращает, только успех
+  } catch (err) {
+    console.error('Ошибка при обновлении статуса жилья:', err);
+    res.sendStatus(500);
+  }
+};
+
+export const getPendingProperties = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const properties = await prisma.property.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        owner: true,
+        documents: true,  // документы подключаются здесь
+        images: true,
+      },
+    });
+
+    // Преобразуем документы, чтобы они содержали нужные поля
+    const modifiedProperties = properties.map(property => ({
+      ...property,
+      documents: property.documents.map(doc => ({
+        ...doc,
+        fileName: doc.fileUrl.split('/').pop(), // Делаем из fileUrl имя файла
+      }))
+    }));
+
+    res.status(200).json(modifiedProperties);
+  } catch (err) {
+    console.error('Ошибка при получении жилья:', err);
+    res.sendStatus(500);
+  }
+};
+

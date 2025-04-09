@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUserRole, setUserName, setUserId, setUserActiveStatus } from '../slices/userSlice';
+import { setUserRole, setUserName, setUserId, setUserActiveStatus, setUserVerifiedStatus } from '../slices/userSlice';
 import { decodeJwt } from 'jose';
 import '../styles/Login.css';
 
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
         // Декодируем токен
         const decodedToken: any = decodeJwt(data.token);
         if (decodedToken) {
-          const { role, userId, isActive } = decodedToken;
+          const { role, userId, isActive, isVerified } = decodedToken;
 
           // Сохраняем данные в localStorage и Redux
           if (role) {
@@ -40,6 +40,10 @@ const Login: React.FC = () => {
           if (isActive !== undefined) {
             dispatch(setUserActiveStatus(isActive)); // Сохраняем статус активности
           }
+          if (isVerified !== undefined) {
+            dispatch(setUserVerifiedStatus(isVerified)); // Сохраняем статус верификации
+            localStorage.setItem('isVerified', String(isVerified)); // Сохраняем в localStorage
+          }
         }
 
         dispatch(setUserName(login)); // Обновляем имя в Redux
@@ -48,6 +52,8 @@ const Login: React.FC = () => {
         // Перенаправление
         if (decodedToken.isActive === false) {
           setMessage('Ваш аккаунт заблокирован');
+        } else if (decodedToken.isVerified === false) {
+          setMessage('Ваш аккаунт не верифицирован');
         } else {
           window.location.href = '/catalog';
         }

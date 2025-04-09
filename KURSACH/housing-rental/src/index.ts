@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express'; // Импортировать типы
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
@@ -18,31 +18,66 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: 'http://localhost:3001',
 }));
+// Для скачивания файла (например, администратор скачивает документы)
+app.get('/uploads/*', (req: Request<{ 0: string }>, res: Response) => {
+  const filePath = path.join(__dirname, '../uploads', req.params[0]);
+  res.download(filePath, (err) => {
+    if (err) {
+      console.error('Error downloading file:', err);
+      res.status(500).send('Error downloading file');
+    }
+  });
+});
+// Статическая папка для отдачи файлов
+app.use('/images', express.static(path.join(__dirname, '../images')));
+app.use('/uploads/verificationDocuments', express.static(path.join(__dirname, '../uploads/verificationDocuments')));
+app.use('/uploads/housingDocuments', express.static(path.join(__dirname, '../uploads/housingDocuments')));
+
+
 
 app.use(express.json());
 
+// Настройка мультер для загрузки изображений и документов
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images/'); // Папка для сохранения изображений
+    if (file.fieldname === 'images') {
+      cb(null, 'images/'); // Папка для изображений
+    } else if (file.fieldname === 'verificationDocuments') {
+      cb(null, 'uploads/verificationDocuments'); // Папка для документов верификации
+    } else if (file.fieldname === 'housingDocuments') {
+      cb(null, 'uploads/housingDocuments'); // Папка для документов жилья
+    } else {
+      console.error('Invalid file fieldname:', file.fieldname); // Логируем ошибку для неожиданного поля
+      cb(new Error('Invalid file fieldname'), ''); // Ошибка, если поле не найдено
+    }
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
+    cb(null, filename);
   },
 });
 
 const upload = multer({ storage });
 
-app.post('/housing', upload.array('images', 10), createHousing); // Маршрут для создания жилья с загрузкой изображения
-app.use('/images', express.static(path.join(__dirname, '../images')));
+// Многократная загрузка для изображений и документов
+export const multiUpload = upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'verificationDocuments', maxCount: 5 },
+  { name: 'housingDocuments', maxCount: 5 },
+]);
+
+// Маршрут для создания жилья с загрузкой изображений и документов
+app.post('/housing', multiUpload, createHousing); 
+
+// Применяем маршруты
 app.use('/auth', authRoutes);
-app.use('/users', userRoutes); // Применяем маршруты для работы с пользователями
+app.use('/users', userRoutes);
 app.use('/catalog', catalogRoutes);
 app.use('/property', propertyRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api', chatRoutes);
 app.use('/stat', ownerRoutes);
-
 
 // Запуск сервера
 app.listen(PORT, async () => {

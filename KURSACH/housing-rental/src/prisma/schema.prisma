@@ -10,21 +10,24 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  login     String   @unique
-  password  String
-  email     String   @unique
-  role      Role     @default(USER)
-  properties Property[]  // Связь с жильем для владельцев
-  bookings   Booking[]   // Связь с бронированиями для пользователей
-  reviews    Review[]    // Обратная связь с отзывами
+  id          Int      @id @default(autoincrement())
+  login       String   @unique
+  password    String
+  email       String   @unique
+  role        Role     @default(USER)
+  properties  Property[]
+  bookings    Booking[]
+  reviews     Review[]
 
-  // Связи для чатов
-  ownedChats Chat[] @relation("OwnerChats")  // Чаты, где пользователь владелец
-  userChats  Chat[] @relation("UserChats")  // Чаты, где пользователь обычный пользователь
-  messages   Message[]                       // Сообщения, отправленные пользователем
+  ownedChats  Chat[]   @relation("OwnerChats")
+  userChats   Chat[]   @relation("UserChats")
+  messages    Message[]
 
-  isActive  Boolean  @default(true)  // Новое поле для блокировки пользователя
+  isActive    Boolean  @default(true)
+  isExternal  Boolean  @default(false)
+
+  documentUrl String?  // Новый столбец для хранения ссылки на документ
+  isVerified  Boolean  @default(false)  // Статус верификации документа
 }
 
 model Property {
@@ -46,9 +49,24 @@ model Property {
 
   // Удалено поле imageUrl
   images        PropertyImage[] // Связь с изображениями
+
+  // Новые поля
+  status          PropertyStatus     @default(PENDING)
+  documents       PropertyDocument[] // прикреплённые файлы
 }
 
+model PropertyDocument {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int
+  property    Property @relation(fields: [propertyId], references: [id])
+  fileUrl     String
+}
 
+enum PropertyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
 
 model Review {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserRole, logout } from '../slices/userSlice';
+import { setUserRole, logout, setUserVerifiedStatus } from '../slices/userSlice'; // добавим action для setUserVerified
 import "../styles/Navbar.css";
 
 const Navbar: React.FC = () => {
@@ -9,9 +9,42 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   // Данные пользователя из Redux
-  const { role: userRole, userName, userId } = useSelector((state: any) => state.user);
+  const { role: userRole, userName, userId, isVerified } = useSelector((state: any) => state.user);
 
   const [pendingBookings, setPendingBookings] = useState<number>(0); // Количество ожидающих бронирований
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false); // Флаг для отображения модального окна
+  const [documents, setDocuments] = useState<File | null>(null); // Документы для загрузки
+
+  // Функция для получения актуального статуса верификации
+  const fetchVerificationStatus = useCallback(async () => {
+    if (userId) {
+      try {
+        const response = await fetch(`http://localhost:3000/users/${userId}/verify-status`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          dispatch(setUserVerifiedStatus(data.isVerified)); // Обновляем статус верификации в Redux
+        } else {
+          console.error('Ошибка при получении статуса верификации');
+        }
+      } catch (error) {
+        console.error('Ошибка при получении статуса верификации:', error);
+      }
+    }
+  }, [userId, dispatch]);
+
+  // Выполнение запроса при изменении userId
+  useEffect(() => {
+    if (userId) {
+      fetchVerificationStatus();
+    }
+  }, [fetchVerificationStatus, userId]);
 
   // Функция для получения количества ожидающих бронирований
   const fetchPendingBookings = useCallback(async () => {
@@ -94,6 +127,55 @@ const Navbar: React.FC = () => {
   // Проверка на гостя
   const isGuest = !userRole;
 
+  // Открытие модального окна для верификации
+  const openVerificationModal = () => {
+    setShowVerificationModal(true);
+  };
+
+  // Закрытие модального окна
+  const closeVerificationModal = () => {
+    setShowVerificationModal(false);
+  };
+
+  // Обработка выбора документа
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setDocuments(e.target.files[0]);
+    }
+  };
+
+  // Отправка документов для верификации
+  const handleUploadDocuments = async () => {
+    if (!documents || !userId) {
+      alert('Пожалуйста, загрузите документы для верификации');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('documents', documents);
+
+    try {
+      const response = await fetch(`http://localhost:3000/users/${userId}/verify`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Документы успешно загружены. Ожидайте верификации.');
+        closeVerificationModal();
+      } else {
+        alert(data.message || 'Ошибка при загрузке документов');
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке документов:', error);
+      alert('Ошибка при загрузке документов');
+    }
+  };
+
   return (
     <nav className="navbar">
       <ul className="navbar-list">
@@ -106,13 +188,15 @@ const Navbar: React.FC = () => {
         ) : (
           <>
             <li>Привет, {userName}, ваша роль: {userRole}</li>
-            {userRole === 'USER' && (
+            {userRole === 'USER' && !isVerified && (
               <>
                 <li>
-                  <button onClick={() => navigate(`/user-history/${userId}`)}>
-                    История бронирований
-                  </button>
+                  <button onClick={openVerificationModal}>Пройти верификацию</button>
                 </li>
+              </>
+            )}
+            {userRole === 'USER' && isVerified && (
+              <>
                 <li>
                   <button onClick={() => handleRoleSwitch('OWNER', 'Вы стали владельцем!')}>
                     Стать владельцем
@@ -121,12 +205,6 @@ const Navbar: React.FC = () => {
                 <li>
                   <button onClick={() => navigate(`/user-settings/${userId}`)}>
                     Настройки пользователя
-                  </button>
-                </li>
-                {/* Добавляем переход к чату */}
-                <li>
-                  <button onClick={() => navigate(`/user-chats/${userId}`)}>
-                    Мои чаты
                   </button>
                 </li>
               </>
@@ -145,18 +223,6 @@ const Navbar: React.FC = () => {
                     Стать пользователем
                   </button>
                 </li>
-                {/* Добавляем переход к чату */}
-                <li>
-                  <button onClick={() => navigate(`/user-chats/${userId}`)}>
-                    Мои чаты
-                  </button>
-                </li>
-                {/* Добавляем ссылку на статистику владельца */}
-                <li>
-                  <button onClick={() => navigate('/statistics')}>
-                    Статистика владельца
-                  </button>
-                </li>
               </>
             )}
             {userRole === 'ADMIN' && (
@@ -170,6 +236,18 @@ const Navbar: React.FC = () => {
           </>
         )}
       </ul>
+
+      {/* Модальное окно для верификации */}
+      {showVerificationModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Загрузите документы для верификации</h3>
+            <input type="file" onChange={handleFileChange} />
+            <button onClick={handleUploadDocuments}>Загрузить документы</button>
+            <button onClick={closeVerificationModal}>Закрыть</button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

@@ -29,26 +29,31 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         password: hashedPassword,
         email,
         role: 'USER', // Роль по умолчанию
+        isVerified: false, // Статус верификации по умолчанию (false)
       },
     });
 
     // Генерация токена
     const token = jwt.sign(
-      { userId: newUser.id, role: newUser.role, isActive: newUser.isActive },
+      {
+        userId: newUser.id,
+        role: newUser.role,
+        isActive: newUser.isActive,
+        isVerified: newUser.isVerified, // Добавляем isVerified в токен
+      },
       JWT_SECRET,
       { expiresIn: '1000h' }
     );
 
     res.status(201).json({
       message: 'Пользователь успешно зарегистрирован',
-      token, // Токен с ролью
+      token, // Токен с ролью и isVerified
     });
   } catch (error) {
     console.error("Ошибка при регистрации пользователя:", error);
     res.status(500).json({ message: 'Ошибка при регистрации пользователя', error });
   }
 };
-
   
 // Авторизация пользователя
 export const login = async (req: Request, res: Response) : Promise<void> => {
@@ -70,9 +75,16 @@ export const login = async (req: Request, res: Response) : Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ userId: user.id, role: user.role, isActive: user.isActive }, JWT_SECRET, {
-      expiresIn: '1000h',
-    });
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+        isActive: user.isActive,
+        isVerified: user.isVerified, // Добавляем isVerified в токен
+      },
+      JWT_SECRET,
+      { expiresIn: '1000h' }
+    );
 
     res.status(200).json({ message: 'Авторизация успешна', token });
   } catch (error) {

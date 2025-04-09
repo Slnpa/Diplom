@@ -9,6 +9,7 @@ import ChatComponent from './ChatComponent';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import ExternalBookingForm from './ExternalBookingForm';
 
 
 interface Property {
@@ -227,8 +228,11 @@ const PropertyPage: React.FC = () => {
         })}
       </ul>
       {userRole === 'USER' && (
-        <BookingForm propertyId={property.id} userId={Number(userId)} onBookingSuccess={setMessage} />
+        <BookingForm propertyId={property.id} userId={Number(userId)} onBookingSuccess={setMessage} bookings={property.bookings} />
       )}
+      {userRole === 'OWNER' && (
+  <ExternalBookingForm propertyId={property.id} bookings={property.bookings}/>
+)}
       <Reviews propertyId={property.id} isConfirmed={isBookingConfirmed} /> {/* Передаем параметр isBookingConfirmed */}
 
       {/* Добавляем компонент чата */}

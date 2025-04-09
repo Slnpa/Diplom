@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';  // Для доступа к данным Redux
-import '../styles/CreateHousing.css';  // Импортируем стили
+import { useSelector } from 'react-redux';
+import '../styles/CreateHousing.css';
 
 const CreateHousing: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,31 +8,25 @@ const CreateHousing: React.FC = () => {
     description: '',
     location: '',
     pricePerNight: '',
-    categoryId: '', // Новый параметр для категории
-    criteria: [] as string[], // Новый параметр для критериев (массив)
+    categoryId: '',
+    criteria: [] as string[],
   });
-  const [images, setImages] = useState<File[]>([]); // теперь массив файлов
-  const [categories, setCategories] = useState<any[]>([]); // Состояние для списка категорий
-  const [criteriaList, setCriteriaList] = useState<any[]>([]); // Состояние для списка критериев
 
-  // Получаем данные пользователя из Redux
+  const [images, setImages] = useState<File[]>([]);
+  const [documents, setDocuments] = useState<File[]>([]); // 🔹 Новый стейт для документов
+  const [categories, setCategories] = useState<any[]>([]);
+  const [criteriaList, setCriteriaList] = useState<any[]>([]);
+
   const user = useSelector((state: any) => state.user);
-
-  // Получаем ID владельца из данных пользователя
   const ownerId = user.userId;
-
-  // Проверяем, является ли пользователь администратором или владельцем
   const canCreateHousing = user.role === 'ADMIN' || user.role === 'OWNER';
 
-  // Загрузка категорий и критериев с сервера
   useEffect(() => {
-    // Загрузка категорий
     fetch('http://localhost:3000/admin/categories')
       .then(response => response.json())
       .then(data => setCategories(data))
       .catch(error => console.error('Ошибка при загрузке категорий:', error));
 
-    // Загрузка критериев
     fetch('http://localhost:3000/admin/criteria')
       .then(response => response.json())
       .then(data => setCriteriaList(data))
@@ -55,24 +49,26 @@ const CreateHousing: React.FC = () => {
 
   const handleCriteriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
-  
     setFormData(prevFormData => {
       const updatedCriteria = checked
-        ? [...prevFormData.criteria, value]  // Добавляем ID критерия в массив
-        : prevFormData.criteria.filter(criterionId => criterionId !== value); // Убираем ID критерия из массива
-        
+        ? [...prevFormData.criteria, value]
+        : prevFormData.criteria.filter(criterionId => criterionId !== value);
       return {
         ...prevFormData,
         criteria: updatedCriteria,
       };
     });
   };
-  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      setImages(selectedFiles); // сохраняем сразу все выбранные файлы
+      setImages(Array.from(e.target.files));
+    }
+  };
+
+  const handleDocumentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setDocuments(Array.from(e.target.files));
     }
   };
 
@@ -84,34 +80,38 @@ const CreateHousing: React.FC = () => {
     formDataToSend.append('description', formData.description);
     formDataToSend.append('location', formData.location);
     formDataToSend.append('pricePerNight', formData.pricePerNight);
-    formDataToSend.append('ownerId', ownerId.toString()); // Используем ID владельца из контекста
-    formDataToSend.append('categoryId', formData.categoryId); // Добавляем categoryId
+    formDataToSend.append('ownerId', ownerId.toString());
+    formDataToSend.append('categoryId', formData.categoryId);
 
     if (formData.criteria.length > 0) {
       formData.criteria.forEach(criterionId => {
-        formDataToSend.append('criteria[]', criterionId); // Добавляем каждый ID критерия
+        formDataToSend.append('criteria[]', criterionId);
       });
     }
 
-    if (images) {
-      images.forEach((file) => {
-        formDataToSend.append('images', file); // несколько файлов с одним и тем же ключом
+    if (images.length > 0) {
+      images.forEach(file => {
+        formDataToSend.append('images', file);
       });
     }
-  
-    formDataToSend.forEach((value, key) => {
-      console.log(key, value); // выводим ключ и значение
-    });
+
+    if (documents.length > 0) {
+      documents.forEach(file => {
+        formDataToSend.append('housingDocuments', file);
+      });
+    }
 
     try {
       const response = await fetch('http://localhost:3000/housing', {
         method: 'POST',
         body: formDataToSend,
       });
+
       if (response.ok) {
         alert('Жилье успешно создано!');
         const newProperty = await response.json();
-        console.log(newProperty.imageUrl);
+        console.log(newProperty);
+
         setFormData({
           name: '',
           description: '',
@@ -121,6 +121,7 @@ const CreateHousing: React.FC = () => {
           criteria: [],
         });
         setImages([]);
+        setDocuments([]);
       } else {
         alert('Ошибка при создании жилья');
       }
@@ -180,27 +181,39 @@ const CreateHousing: React.FC = () => {
             </option>
           ))}
         </select>
+
         <div>
-            <p>Выберите критерии:</p>
-            {criteriaList.map(criterion => (
-              <label key={criterion.id}>
-                <input
-                  type="checkbox"
-                  value={criterion.id.toString()} // Преобразуем в строку, если id числовой
-                  checked={formData.criteria.includes(criterion.id.toString())} // Убедитесь, что это строка
-                  onChange={handleCriteriaChange}
-                />
-                {criterion.name}
-              </label>
-            ))}
-          </div>
-          <input
+          <p>Выберите критерии:</p>
+          {criteriaList.map(criterion => (
+            <label key={criterion.id}>
+              <input
+                type="checkbox"
+                value={criterion.id.toString()}
+                checked={formData.criteria.includes(criterion.id.toString())}
+                onChange={handleCriteriaChange}
+              />
+              {criterion.name}
+            </label>
+          ))}
+        </div>
+
+        <p>Изображения жилья:</p>
+        <input
           type="file"
           accept="image/*"
           multiple
           onChange={handleImageChange}
           required
-          />
+        />
+
+        <p>Документы (сканы, подтверждения и т.п.):</p>
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          multiple
+          onChange={handleDocumentsChange}
+        />
+
         <button type="submit">Создать</button>
       </form>
     </div>
