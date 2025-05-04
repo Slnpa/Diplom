@@ -1,8 +1,7 @@
 /* src/components/Catalog.css */
 .catalog-container {
-  display: flex;
   width: 100%;
-  max-width: 1400px; /* Увеличим максимальную ширину контейнера */
+  max-width: 1400px;
   margin: 50px auto;
   padding: 20px;
   background-color: #f9f9f9;
@@ -10,22 +9,25 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.catalog-header {
-  text-align: center;
-  font-size: 30px;
-  margin-bottom: 30px;
-  color: #333;
+.content-wrapper {
+  display: flex;
+}
+
+.add-housing-container {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .filters-container {
-  width: 25%; /* Боковая панель с фильтрами */
+  width: 25%;
   padding-right: 20px;
 }
 
 .search-container,
 .filter-container,
 .sort-container,
-.criteria-container {
+.criteria-container,
+.reset-container {
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
@@ -51,9 +53,9 @@
 }
 
 .property-list {
-  width: 75%; /* Основной контент занимает оставшуюся ширину */
+  width: 75%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 карточки на строку */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   list-style-type: none;
   padding: 0;
@@ -63,7 +65,7 @@
   margin-bottom: 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 15px; /* Уменьшил отступы */
+  padding: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #fff;
   transition: transform 0.2s;
@@ -80,30 +82,30 @@
   border-radius: 10px;
   margin-bottom: 15px;
   object-fit: cover;
-  height: 150px; /* Сделаем изображение меньше */
+  height: 150px;
 }
 
 .property-name {
-  font-size: 18px; /* Уменьшил размер шрифта */
+  font-size: 18px;
   color: #333;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .property-description {
-  font-size: 14px; /* Уменьшил размер шрифта */
+  font-size: 14px;
   color: #666;
   margin-bottom: 10px;
 }
 
 .property-location,
 .property-price {
-  font-size: 14px; /* Уменьшил размер шрифта */
+  font-size: 14px;
   color: #444;
 }
 
 .owner-info {
-  font-size: 12px; /* Уменьшил размер шрифта */
+  font-size: 12px;
   color: #888;
   margin-top: 10px;
 }
@@ -113,41 +115,59 @@
 }
 
 .active-booking {
-  color: red; /* Красный для активного бронирования */
+  color: red;
 }
 
 .free-booking {
-  color: green; /* Зеленый для свободного жилья или истекшего бронирования */
+  color: green;
 }
 
 .delete-button {
-  background-color: #e74c3c; /* Красный цвет */
+  background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 8px 16px; /* Уменьшил размер кнопки */
-  font-size: 14px; /* Уменьшил размер шрифта */
+  padding: 8px 16px;
+  font-size: 14px;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
 }
 
 .delete-button:hover {
-  background-color: #c0392b; /* Темный красный при наведении */
+  background-color: #c0392b;
 }
 
 .add-housing-button {
   background-color: #4CAF50;
   color: white;
-  padding: 8px 16px; /* Уменьшил размер кнопки */
   border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 5px;
   cursor: pointer;
+  width: auto;
 }
 
 .add-housing-button:hover {
   background-color: #45a049;
 }
 
-/* Для меток */
+.reset-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto;
+}
+
+.reset-button:hover {
+  background-color: #5a6268;
+}
+
+/* For labels */
 .filter-container label,
 .sort-container label {
   margin-bottom: 5px;
@@ -156,17 +176,18 @@
 }
 
 .search-container {
-  margin-top: 23px;
+  margin-top: 0;
 }
 
 .property-name,
 .property-description,
 .property-location,
 .property-price {
-  white-space: nowrap; /* Текст в одну строку */
-  overflow: hidden; /* Скрыть текст, выходящий за пределы */
-  text-overflow: ellipsis; /* Добавить многоточие */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .criteria-select {
   padding: 10px;
   font-size: 16px;
@@ -174,13 +195,14 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   outline: none;
-  height: 150px; /* Для многострочного выбора */
+  height: 150px;
 }
 
 .criteria-select:focus {
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }
+
 .criteria-checkboxes {
   display: flex;
   flex-wrap: wrap;

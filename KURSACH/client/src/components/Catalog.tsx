@@ -134,6 +134,13 @@ const Catalog: React.FC = () => {
     );
   };
 
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setFilterCategory('');
+    setSelectedCriteria([]);
+    setSortType('price');
+  };
+
   const filteredProperties = [...properties]
     .filter((property) => {
       if (filterCategory && property.category.name !== filterCategory) return false;
@@ -158,103 +165,122 @@ const Catalog: React.FC = () => {
 
   return (
     <div className="catalog-container">
-      {(userRole === 'OWNER') && (
-        <button onClick={handleAddHousing} className="add-housing-button">
-          Добавить жилье
-        </button>
+      {userRole === 'OWNER' && (
+        <div className="add-housing-container">
+          <button onClick={handleAddHousing} className="add-housing-button">
+            Добавить жилье
+          </button>
+        </div>
       )}
+      <div className="content-wrapper">
+        <div className="filters-container">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Поиск по названию или описанию"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
 
-      <div className="filters-container">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Поиск по названию или описанию"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="filter-container">
-          <label>Фильтр по категории: </label>
-          <select onChange={(e) => setFilterCategory(e.target.value)} className="filter-select">
-            <option value="">Все</option>
-            {categories.map((category, index) => (
-              <option key={index} value={category.name}>{category.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="criteria-container">
-  <label>Критерии:</label>
-  <div className="criteria-checkboxes">
-    {criteria.map((crit) => (
-      <label key={crit.id} className="criterion-label">
-        <input
-          type="checkbox"
-          value={crit.id}
-          checked={selectedCriteria.includes(crit.id)}
-          onChange={() => handleCriterionToggle(crit.id)}
-        />
-        {crit.name}
-      </label>
-    ))}
-  </div>
-</div>
-
-
-        <div className="sort-container">
-          <label>Сортировка: </label>
-          <select onChange={(e) => setSortType(e.target.value)} className="sort-select">
-            <option value="price">По цене</option>
-            <option value="alphabet">По алфавиту</option>
-          </select>
-        </div>
-      </div>
-
-      {filteredProperties.length === 0 ? (
-        <p>Жилье не найдено</p>
-      ) : (
-        <ul className="property-list">
-          {filteredProperties.map((property) => (
-            <li
-              key={property.id}
-              className="property-card"
-              onClick={() => handlePropertyClick(property.id)}
+          <div className="filter-container">
+            <label>Фильтр по категории: </label>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="filter-select"
             >
-              <img
-                src={`http://localhost:3000${property.images[0]?.imageUrl}`}
-                alt={property.name}
-                className="property-image"
-              />
-              <h2>{property.name}</h2>
-              <p>{property.description}</p>
-              <p>Местоположение: {property.location}</p>
-              <p>Цена за ночь: {property.pricePerNight} руб.</p>
-              <p>Категория: {property.category.name}</p>
-              <p>
-  Критерии:{' '}
-  {Array.isArray(property.criteria)
-    ? property.criteria.map((c) => c.criterion.name).join(', ')
-    : '—'}
-</p>              <div>
-                Владелец: {property.owner.login} ({property.owner.email})
-              </div>
-              {(userRole === 'ADMIN' || String(userId) === String(property.owner.id)) && (
-                <button
-                  className="delete-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(property.id);
-                  }}
-                >
-                  Удалить жилье
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+              <option value="">Все</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="criteria-container">
+            <label>Критерии:</label>
+            <div className="criteria-checkboxes">
+              {criteria.map((crit) => (
+                <label key={crit.id} className="criterion-label">
+                  <input
+                    type="checkbox"
+                    value={crit.id}
+                    checked={selectedCriteria.includes(crit.id)}
+                    onChange={() => handleCriterionToggle(crit.id)}
+                  />
+                  {crit.name}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="sort-container">
+            <label>Сортировка: </label>
+            <select
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
+              className="sort-select"
+            >
+              <option value="price">По цене</option>
+              <option value="alphabet">По алфавиту</option>
+            </select>
+          </div>
+
+          <div className="reset-container">
+            <button onClick={handleResetFilters} className="reset-button">
+              Сбросить фильтры
+            </button>
+          </div>
+        </div>
+
+        {filteredProperties.length === 0 ? (
+          <p>Жилье не найдено</p>
+        ) : (
+          <ul className="property-list">
+            {filteredProperties.map((property) => (
+              <li
+                key={property.id}
+                className="property-card"
+                onClick={() => handlePropertyClick(property.id)}
+              >
+                <img
+                  src={`http://localhost:3000${property.images[0]?.imageUrl}`}
+                  alt={property.name}
+                  className="property-image"
+                />
+                <h2>{property.name}</h2>
+                <p>{property.description}</p>
+                <p>Местоположение: {property.location}</p>
+                <p>Цена за ночь: {property.pricePerNight} руб.</p>
+                <p>Категория: {property.category.name}</p>
+                <p>
+                  Критерии:{' '}
+                  {Array.isArray(property.criteria)
+                    ? property.criteria.map((c) => c.criterion.name).join(', ')
+                    : '—'}
+                </p>
+                <div>
+                  Владелец: {property.owner.login} ({property.owner.email})
+                </div>
+                {(userRole === 'ADMIN' || String(userId) === String(property.owner.id)) && (
+                  <button
+                    className="delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(property.id);
+                    }}
+                  >
+                    Удалить жилье
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };

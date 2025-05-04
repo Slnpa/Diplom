@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserRole, logout, setUserVerifiedStatus } from '../slices/userSlice'; // добавим action для setUserVerified
+import { setUserRole, logout, setUserVerifiedStatus } from '../slices/userSlice';
 import "../styles/Navbar.css";
 
 const Navbar: React.FC = () => {
@@ -11,9 +11,9 @@ const Navbar: React.FC = () => {
   // Данные пользователя из Redux
   const { role: userRole, userName, userId, isVerified } = useSelector((state: any) => state.user);
 
-  const [pendingBookings, setPendingBookings] = useState<number>(0); // Количество ожидающих бронирований
-  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false); // Флаг для отображения модального окна
-  const [documents, setDocuments] = useState<File | null>(null); // Документы для загрузки
+  const [pendingBookings, setPendingBookings] = useState<number>(0);
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
+  const [documents, setDocuments] = useState<File | null>(null);
 
   // Функция для получения актуального статуса верификации
   const fetchVerificationStatus = useCallback(async () => {
@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          dispatch(setUserVerifiedStatus(data.isVerified)); // Обновляем статус верификации в Redux
+          dispatch(setUserVerifiedStatus(data.isVerified));
         } else {
           console.error('Ошибка при получении статуса верификации');
         }
@@ -78,13 +78,9 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (userRole === 'OWNER') {
       fetchPendingBookings();
-
-      // Настроим обновление каждую секунду
       const intervalId = setInterval(() => {
         fetchPendingBookings();
       }, 1000);
-
-      // Очищаем интервал при размонтировании компонента
       return () => clearInterval(intervalId);
     }
   }, [fetchPendingBookings, userRole, userId]);
@@ -135,6 +131,7 @@ const Navbar: React.FC = () => {
   // Закрытие модального окна
   const closeVerificationModal = () => {
     setShowVerificationModal(false);
+    setDocuments(null); // Сбрасываем выбранный файл при закрытии
   };
 
   // Обработка выбора документа
@@ -189,11 +186,9 @@ const Navbar: React.FC = () => {
           <>
             <li>Привет, {userName}, ваша роль: {userRole}</li>
             {userRole === 'USER' && !isVerified && (
-              <>
-                <li>
-                  <button onClick={openVerificationModal}>Пройти верификацию</button>
-                </li>
-              </>
+              <li>
+                <button onClick={openVerificationModal}>Пройти верификацию</button>
+              </li>
             )}
             {userRole === 'USER' && isVerified && (
               <>
@@ -239,12 +234,31 @@ const Navbar: React.FC = () => {
 
       {/* Модальное окно для верификации */}
       {showVerificationModal && (
-        <div className="modal">
+        <div className="modal-overlay">
           <div className="modal-content">
-            <h3>Загрузите документы для верификации</h3>
-            <input type="file" onChange={handleFileChange} />
-            <button onClick={handleUploadDocuments}>Загрузить документы</button>
-            <button onClick={closeVerificationModal}>Закрыть</button>
+            <h3>Верификация аккаунта</h3>
+            <p>Загрузите документы для подтверждения вашей личности</p>
+            <div className="file-input-container">
+              <input
+                type="file"
+                id="document-upload"
+                onChange={handleFileChange}
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="file-input"
+              />
+              <label htmlFor="document-upload" className="file-input-label">
+                {documents ? documents.name : 'Выберите файл'}
+              </label>
+            </div>
+            {documents && <p className="file-selected">Выбран: {documents.name}</p>}
+            <div className="modal-buttons">
+              <button onClick={handleUploadDocuments} className="upload-button">
+                Загрузить
+              </button>
+              <button onClick={closeVerificationModal} className="close-button">
+                Закрыть
+              </button>
+            </div>
           </div>
         </div>
       )}

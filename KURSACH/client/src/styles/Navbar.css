@@ -1,38 +1,182 @@
 /* styles/Navbar.css */
 .navbar {
-    background-color: #333;
-    padding: 10px;
+  background-color: #333;
+  padding: 10px;
+}
+
+.navbar-list {
+  display: flex;
+  list-style-type: none;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.navbar-list li {
+  color: white;
+  margin: 0 10px;
+}
+
+.navbar-list li a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.navbar-list li a:hover {
+  text-decoration: underline;
+}
+
+.navbar-list li button {
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.navbar-list li button:hover {
+  text-decoration: underline;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.file-input-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-input-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.file-input-label:hover {
+  background-color: #45a049;
+}
+
+.file-selected {
+  margin-top: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.upload-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.upload-button:hover {
+  background-color: #45a049;
+}
+
+.close-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.close-button:hover {
+  background-color: #5a6268;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 90%;
+    padding: 15px;
+  }
+
   .navbar-list {
-    display: flex;
-    list-style-type: none;
-    justify-content: space-around;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  
+
   .navbar-list li {
-    color: white;
-    margin: 0 10px;
+    margin: 5px;
   }
-  
-  .navbar-list li a {
-    color: white;
-    text-decoration: none;
-  }
-  
-  .navbar-list li a:hover {
-    text-decoration: underline;
-  }
-  
-  .navbar-list li button {
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .navbar-list li button:hover {
-    text-decoration: underline;
-  }
-  
+}

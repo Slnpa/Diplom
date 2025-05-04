@@ -1,94 +1,154 @@
 /* Основные стили для страницы */
 .property-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-  }
-  
-  .property-page h1 {
-    font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .property-page img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
-  .property-page p {
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .property-page strong {
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .property-page ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .property-page ul li {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-    color: #444;
-  }
-  
-  /* Стили для формы бронирования */
-  .property-page input {
-    font-size: 1rem;
-    padding: 8px;
-    margin: 10px 0;
-    width: calc(50% - 20px);
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  .property-page button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .property-page button:hover {
-    background-color: #45a049;
-  }
-  
-  .property-page button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  /* Сообщение об ошибке или успехе */
-  .property-page p.message {
-    font-size: 1.1rem;
-    margin-top: 20px;
-    color: #d9534f;
-  }
-  
-  .property-page p.success-message {
-    color: #5bc0de;
-  }
-  
-  /* Дополнительные стили */
-  .property-page h2 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-top: 40px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+}
+
+.property-page h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.property-page img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.property-page p {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.property-page strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.property-page ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.property-page ul li {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+/* Стили для формы бронирования */
+.property-page input {
+  font-size: 1rem;
+  padding: 8px;
+  margin: 10px 0;
+  width: calc(50% - 20px);
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.property-page button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.property-page button:hover {
+  background-color: #45a049;
+}
+
+.property-page button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Сообщение об ошибке или успехе */
+.property-page p.message {
+  font-size: 1.1rem;
+  margin-top: 20px;
+  color: #d9534f;
+}
+
+.property-page p.success-message {
+  color: #5bc0de;
+}
+
+/* Дополнительные стили */
+.property-page h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-top: 40px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Стили для слайдера */
+.slick-slider {
+  margin-bottom: 20px;
+}
+
+.slick-prev,
+.slick-next {
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  background: none !important; /* Убираем зелёный фон */
+  border: none;
+  color: transparent; /* Убираем стандартный текст */
+}
+
+.slick-prev:before,
+.slick-next:before {
+  font-size: 30px;
+  color: #4CAF50 !important; /* Зелёный цвет стрелок */
+  opacity: 0.8;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  content: ''; /* Убираем стандартное содержимое */
+}
+
+.slick-prev:hover:before,
+.slick-next:hover:before {
+  opacity: 1;
+  color: #45a049; /* Темнее при наведении */
+}
+
+.slick-prev:before {
+  content: '\2190'; /* Unicode для стрелки влево */
+}
+
+.slick-next:before {
+  content: '\2192'; /* Unicode для стрелки вправо */
+}
+
+.slick-prev {
+  left: -40px !important; /* Положение слева */
+}
+
+.slick-next {
+  right: -20px !important; /* Положение справа */
+}
+
+.slick-dots {
+  bottom: 10px;
+}
+
+.slick-dots li button:before {
+  font-size: 12px;
+  color: #4CAF50;
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #4CAF50;
+  opacity: 1;
+}
