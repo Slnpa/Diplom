@@ -186,12 +186,35 @@ const Navbar: React.FC = () => {
           <>
             <li>Привет, {userName}, ваша роль: {userRole}</li>
             {userRole === 'USER' && !isVerified && (
-              <li>
-                <button onClick={openVerificationModal}>Пройти верификацию</button>
-              </li>
+              <>
+                              <li>
+                  <button onClick={() => navigate(`/user-history/${userId}`)}>
+                    История бронирований
+                  </button>
+                </li>
+                <li>
+                  <button onClick={openVerificationModal}>Пройти верификацию</button>
+                </li>
+                                <li>
+                  <button onClick={() => navigate(`/user-settings/${userId}`)}>
+                    Настройки пользователя
+                  </button>
+                </li>
+                                {/* Добавляем переход к чату */}
+                <li>
+                  <button onClick={() => navigate(`/user-chats/${userId}`)}>
+                    Мои чаты
+                  </button>
+                </li>
+              </>
             )}
             {userRole === 'USER' && isVerified && (
               <>
+              <li>
+                  <button onClick={() => navigate(`/user-history/${userId}`)}>
+                    История бронирований
+                  </button>
+                </li>
                 <li>
                   <button onClick={() => handleRoleSwitch('OWNER', 'Вы стали владельцем!')}>
                     Стать владельцем
@@ -200,6 +223,11 @@ const Navbar: React.FC = () => {
                 <li>
                   <button onClick={() => navigate(`/user-settings/${userId}`)}>
                     Настройки пользователя
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate(`/user-chats/${userId}`)}>
+                    Мои чаты
                   </button>
                 </li>
               </>
@@ -218,12 +246,27 @@ const Navbar: React.FC = () => {
                     Стать пользователем
                   </button>
                 </li>
+                                <li>
+                  <button onClick={() => navigate(`/user-settings/${userId}`)}>
+                    Настройки пользователя
+                  </button>
+                </li>
+                                <li>
+                  <button onClick={() => navigate(`/user-chats/${userId}`)}>
+                    Мои чаты
+                  </button>
+                </li>
+                                <li>
+                  <button onClick={() => navigate('/statistics')}>
+                    Статистика владельца
+                  </button>
+                </li>
               </>
             )}
             {userRole === 'ADMIN' && (
               <li>
                 <button onClick={() => navigate('/admin')}>
-                  Админка
+                  Панель администратора
                 </button>
               </li>
             )}

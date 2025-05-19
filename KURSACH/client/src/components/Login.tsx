@@ -29,7 +29,7 @@ const Login: React.FC = () => {
         const decodedToken: any = decodeJwt(data.token);
         if (decodedToken) {
           const { role, userId, isActive, isVerified } = decodedToken;
-
+          if(isActive===false) return setMessage('Ваш аккаунт заблокирован');
           // Сохраняем данные в localStorage и Redux
           if (role) {
             dispatch(setUserRole(role));

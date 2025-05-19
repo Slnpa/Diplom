@@ -192,7 +192,7 @@ const PropertyPage: React.FC = () => {
       {userRole === 'OWNER' && (
         <div>
           <button onClick={() => navigate(`/property/${id}/edit`)}>Редактировать жилье</button>
-          <button onClick={handleDeleteProperty}>Удалить жилье</button>
+          <button className='deleteBut' onClick={handleDeleteProperty}>Удалить жилье</button>
         </div>
       )}
       <h2>Доступные бронирования</h2>
@@ -233,10 +233,12 @@ const PropertyPage: React.FC = () => {
       {userRole === 'OWNER' && (
   <ExternalBookingForm propertyId={property.id} bookings={property.bookings}/>
 )}
-      <Reviews propertyId={property.id} isConfirmed={isBookingConfirmed} /> {/* Передаем параметр isBookingConfirmed */}
-
-      {/* Добавляем компонент чата */}
+        {userRole === 'USER' && (
+      <Reviews propertyId={property.id} isConfirmed={isBookingConfirmed} />
+  )}
+      {userRole && (
       <ChatComponent ownerId={property.owner.id} userRole={userRole} propertyId={property.id} ownerName={property.owner.login}/>
+)}
     </div>
   );
 };

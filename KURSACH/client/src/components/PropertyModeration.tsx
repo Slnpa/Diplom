@@ -74,7 +74,7 @@ const PropertyModeration: React.FC = () => {
           )}
 
           <button onClick={() => handleDecision(property.id, 'APPROVED')}>✅ Одобрить</button>
-          <button onClick={() => handleDecision(property.id, 'REJECTED')}>❌ Отклонить</button>
+          <button className='reject-button' onClick={() => handleDecision(property.id, 'REJECTED')}>❌ Отклонить</button>
         </div>
       ))}
     </div>

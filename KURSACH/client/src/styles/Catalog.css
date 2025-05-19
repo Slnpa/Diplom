@@ -1,4 +1,6 @@
 /* src/components/Catalog.css */
+
+/* Общие стили контейнера */
 .catalog-container {
   width: 100%;
   max-width: 1400px;
@@ -9,15 +11,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Контент */
 .content-wrapper {
   display: flex;
 }
 
-.add-housing-container {
-  width: 100%;
-  margin-bottom: 20px;
-}
-
+/* Фильтры */
 .filters-container {
   width: 25%;
   padding-right: 20px;
@@ -27,19 +26,23 @@
 .filter-container,
 .sort-container,
 .criteria-container,
-.reset-container {
+.reset-container,
+.add-housing-container {
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
 }
 
+.search-container {
+  margin-top: 0;
+}
+
 .search-input,
 .filter-select,
 .sort-select,
-.criteria-checkboxes {
+.criteria-search-input {
   padding: 10px;
   font-size: 16px;
-  width: 100%;
   border: 1px solid #ddd;
   border-radius: 5px;
   outline: none;
@@ -47,18 +50,69 @@
 
 .search-input:focus,
 .filter-select:focus,
-.sort-select:focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+.sort-select:focus,
+.criteria-search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px #007bff;
 }
 
+.filter-container label,
+.sort-container label,
+.criteria-container label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Критерии */
+.criteria-container {
+  margin-bottom: 20px;
+}
+
+.criteria-search-input {
+  margin-bottom: 10px;
+}
+
+.criteria-checkboxes {
+  max-height: 150px; /* Фиксированная высота для прокрутки */
+  overflow-y: auto; /* Вертикальная прокрутка */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.criterion-label {
+  display: flex; /* Гибкое выравнивание для чекбокса и текста */
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.criterion-label input {
+  margin: 0; /* Убираем стандартные отступы */
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.criterion-label:hover {
+  background-color: #f1f1f1; /* Подсветка при наведении */
+  border-radius: 3px;
+}
+
+/* Список объектов */
 .property-list {
   width: 75%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   list-style-type: none;
-  padding: 0;
+  margin: 0;
 }
 
 .property-list li {
@@ -90,18 +144,27 @@
   color: #333;
   font-weight: bold;
   margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .property-description {
   font-size: 14px;
   color: #666;
   margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .property-location,
 .property-price {
   font-size: 14px;
   color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .owner-info {
@@ -122,106 +185,51 @@
   color: green;
 }
 
+/* Кнопки */
+.add-housing-button,
+.reset-button,
+.delete-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto;
+}
+
+.add-housing-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.add-housing-button:hover {
+  background-color: #135296;
+}
+
+.reset-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.reset-button:hover {
+  background-color: #b53a2c;
+}
+
 .delete-button {
   background-color: #e74c3c;
   color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
+  margin-top: auto; /* Прижимает кнопку к низу */
 }
 
 .delete-button:hover {
   background-color: #c0392b;
 }
 
-.add-housing-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: auto;
-}
-
-.add-housing-button:hover {
-  background-color: #45a049;
-}
-
-.reset-button {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-  width: auto;
-}
-
-.reset-button:hover {
-  background-color: #5a6268;
-}
-
-/* For labels */
-.filter-container label,
-.sort-container label {
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: #333;
-}
-
-.search-container {
-  margin-top: 0;
-}
-
-.property-name,
-.property-description,
-.property-location,
-.property-price {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.criteria-select {
-  padding: 10px;
-  font-size: 16px;
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  outline: none;
-  height: 150px;
-}
-
-.criteria-select:focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-.criteria-checkboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.criterion-label {
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.criterion-label input {
-  margin-right: 5px;
-}
-
-.criteria-checkboxes label {
-  display: inline-block;
-  margin-bottom: 10px;
+/* Сообщение об отсутствии объектов */
+.no-properties {
+  width: 75%;
+  text-align: center;
+  margin: 50px 0;
+  font-size: 1.2em;
+  color: #666;
 }

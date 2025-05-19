@@ -1,68 +1,226 @@
 /* src/styles/CreateHousing.css */
 
+/* Контейнер формы */
 .create-housing-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .create-housing-header {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #333;
-  }
-  
-  .create-housing-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .create-housing-form input,
-  .create-housing-form textarea,
-  .create-housing-form button {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .create-housing-form input[type="file"] {
-    padding: 0;
-  }
-  
-  .create-housing-form textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .create-housing-form button {
-    background-color: #4caf50;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s;
-  }
-  
-  .create-housing-form button:hover {
-    background-color: #45a049;
-  }
-  
-  .create-housing-form input:focus,
-  .create-housing-form textarea:focus {
-    border-color: #4caf50;
-    outline: none;
-  }
-  
-  .error-message {
-    color: red;
-    font-size: 16px;
-    text-align: center;
-    margin-top: 20px;
-  }
-  
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.create-housing-header {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* Форма */
+.create-housing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.create-housing-form input,
+.create-housing-form textarea,
+.create-housing-form select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.create-housing-form input:focus,
+.create-housing-form textarea:focus,
+.create-housing-form select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.create-housing-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.create-housing-form input[type="file"] {
+  padding: 0;
+  border: none;
+}
+
+.category-select {
+  width: 100%; /* Полная ширина для единообразия */
+}
+
+/* Критерии */
+.criteria-container {
+  margin-bottom: 0;
+}
+
+.criteria-search-input {
+  margin-bottom: 10px;
+}
+
+.criteria-checkboxes {
+  max-height: 150px; /* Фиксированная высота для прокрутки */
+  overflow-y: auto; /* Вертикальная прокрутка */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.criterion-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.criterion-label input {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.criterion-label:hover {
+  background-color: #f1f1f1;
+  border-radius: 3px;
+}
+
+/* Предпросмотр изображений */
+.image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.image-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.remove-image-button:hover {
+  background-color: #c0392b;
+}
+
+/* Кнопка отправки */
+.submit-button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #135296;
+}
+
+/* Предпросмотр документов */
+.document-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.document-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.document-name {
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
+}
+
+.remove-document-button {
+  width: 24px;
+  height: 24px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.remove-document-button:hover {
+  background-color: #c0392b;
+}
+
+/* Сообщение об ошибке */
+.error-message {
+  color: #e74c3c;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 20px;
+}

@@ -65,3 +65,7 @@
 .admin-panel section {
   margin-bottom: 30px;
 }
+
+.reject-button {
+margin-left: 10px; /* Отступ слева */
+}

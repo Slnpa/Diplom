@@ -75,11 +75,16 @@ export const getOwnerBookings = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// Получить историю бронирований для пользователя
 export const getBookingHistory = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Извлекаем userId из параметров запроса (например, из JWT или сессии)
-    const { userId } = req.params; 
+    // Извлекаем userId из параметров запроса
+    const { userId } = req.params;
+
+    // Проверяем, что userId существует и является числом
+    if (!userId || isNaN(Number(userId))) {
+      res.status(400).json({ message: 'Неверный идентификатор пользователя' });
+      return;
+    }
 
     // Получаем все бронирования пользователя с детальной информацией о жилье
     const bookings = await prisma.booking.findMany({
@@ -91,15 +96,17 @@ export const getBookingHistory = async (req: Request, res: Response): Promise<vo
       },
     });
 
+    // Если бронирований нет, возвращаем 404 и прерываем выполнение
     if (bookings.length === 0) {
       res.status(404).json({ message: 'История бронирований не найдена' });
+      return;
     }
 
     // Отправляем данные о бронированиях
     res.status(200).json(bookings);
   } catch (error) {
     console.error('Ошибка при получении истории бронирований:', error);
-    res.status(500).json({ message: 'Ошибка при получении данных' });
+    res.status(500).json({ message: 'Ошибка сервера при получении данных' });
   }
 };
 

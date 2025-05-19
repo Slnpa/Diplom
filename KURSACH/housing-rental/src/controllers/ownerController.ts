@@ -45,41 +45,68 @@ export const getOwnerStatistics = async (req: Request, res: Response): Promise<v
 
 // Создание бронирования от имени внешнего (незарегистрированного) пользователя
 export const bookForExternalUser = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, propertyId, startDate, endDate } = req.body;
+  const { name, propertyId, startDate, endDate, userId } = req.body;
+  const authenticatedUserId = userId; // Получаем ID из токена
 
-  if (!name || !email || !propertyId || !startDate || !endDate) {
+  // Проверка обязательных полей
+  if (!name || !propertyId || !startDate || !endDate || !userId) {
     res.status(400).json({ message: 'Необходимо заполнить все поля' });
     return;
   }
 
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: 'Пользователь не аутентифицирован' });
+    return;
+  }
+
+  // Проверяем, что userId из тела запроса совпадает с аутентифицированным пользователем
+  if (Number(userId) !== Number(authenticatedUserId)) {
+    res.status(403).json({ message: 'Недостаточно прав для создания бронирования от имени другого пользователя' });
+    return;
+  }
+
   try {
-    let externalUser = await prisma.user.findFirst({
+    // Проверяем, что пользователь является владельцем объекта недвижимости
+    const property = await prisma.property.findFirst({
       where: {
-        email,
-        isExternal: true,
+        id: Number(propertyId),
+        ownerId: Number(userId), // Используем userId (замените на ownerId, если нужно)
       },
     });
 
-    if (!externalUser) {
-      const fakePassword = await hash(Math.random().toString(36).slice(-8), 10);
-      externalUser = await prisma.user.create({
-        data: {
-          login: name,
-          email,
-          role: 'USER',
-          isExternal: true,
-          password: fakePassword,
-        },
-      });
+    if (!property) {
+      res.status(403).json({ message: 'Вы не являетесь владельцем этого объекта' });
+      return;
     }
 
+    // Проверяем, что даты свободны
+    const existingBookings = await prisma.booking.findMany({
+      where: {
+        propertyId: Number(propertyId),
+        status: 'CONFIRMED',
+        OR: [
+          {
+            startDate: { lte: new Date(endDate) },
+            endDate: { gte: new Date(startDate) },
+          },
+        ],
+      },
+    });
+
+    if (existingBookings.length > 0) {
+      res.status(400).json({ message: 'Выбранные даты уже заняты' });
+      return;
+    }
+
+    // Создаём бронирование, привязанное к владельцу
     const booking = await prisma.booking.create({
       data: {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         status: 'CONFIRMED',
-        userId: externalUser.id,
+        userId: Number(userId),
         propertyId: Number(propertyId),
+        clientName: name, // Сохраняем имя клиента
       },
     });
 

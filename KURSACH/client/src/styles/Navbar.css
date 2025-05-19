@@ -90,7 +90,7 @@
 .file-input-label {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
   border-radius: 5px;
   cursor: pointer;
@@ -100,7 +100,7 @@
 }
 
 .file-input-label:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
 }
 
 .file-selected {
@@ -116,7 +116,7 @@
 }
 
 .upload-button {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -126,7 +126,7 @@
 }
 
 .upload-button:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
 }
 
 .close-button {

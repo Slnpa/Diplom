@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUserRole, setUserName, setUserId } from '../slices/userSlice'; // Импортируем actions
-import '../styles/UserSettings.css'; // Импортируем глобальный CSS
+import { setUserRole, setUserName, setUserId } from '../slices/userSlice';
+import '../styles/UserSettings.css';
 
 const UserSettings: React.FC = () => {
-  const dispatch = useDispatch();  // Подключаем dispatch
+  const dispatch = useDispatch();
 
   const [login, setLogin] = useState('');
   const [email, setEmail] = useState('');
@@ -34,7 +34,7 @@ const UserSettings: React.FC = () => {
     };
 
     if (password) {
-      requestData.password = password; // Добавляем новый пароль только если он задан
+      requestData.password = password;
     }
 
     try {
@@ -57,10 +57,9 @@ const UserSettings: React.FC = () => {
       const data = await response.json();
       setSuccess('Информация успешно обновлена');
       setError(null);
-      // Обновляем данные в Redux
-      dispatch(setUserName(data.user.login)); // Обновляем имя пользователя
-      dispatch(setUserRole(data.user.role)); // Обновляем роль пользователя
-      dispatch(setUserId(data.user.id)); // Обновляем id пользователя
+      dispatch(setUserName(data.user.login));
+      dispatch(setUserRole(data.user.role));
+      dispatch(setUserId(data.user.id));
     } catch (error) {
       setError('Ошибка при обновлении информации');
       setSuccess(null);
@@ -75,7 +74,7 @@ const UserSettings: React.FC = () => {
       {success && <div className="success">{success}</div>}
 
       <form onSubmit={handleSubmit} className="form">
-        <div>
+        <div className="input-group">
           <label htmlFor="login" className="label">Логин</label>
           <input
             type="text"
@@ -87,7 +86,7 @@ const UserSettings: React.FC = () => {
           />
         </div>
 
-        <div>
+        <div className="input-group">
           <label htmlFor="email" className="label">Email</label>
           <input
             type="email"
@@ -99,7 +98,7 @@ const UserSettings: React.FC = () => {
           />
         </div>
 
-        <div>
+        <div className="input-group">
           <label htmlFor="oldPassword" className="label">Старый пароль</label>
           <input
             type="password"
@@ -111,7 +110,7 @@ const UserSettings: React.FC = () => {
           />
         </div>
 
-        <div>
+        <div className="input-group">
           <label htmlFor="password" className="label">Новый пароль (если хотите изменить)</label>
           <input
             type="password"

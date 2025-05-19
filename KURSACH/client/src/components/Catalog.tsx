@@ -40,6 +40,7 @@ const Catalog: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [selectedCriteria, setSelectedCriteria] = useState<number[]>([]);
+  const [criteriaSearch, setCriteriaSearch] = useState<string>(''); // Новый стейт для поиска по критериям
   const [loading, setLoading] = useState(true);
   const [sortType, setSortType] = useState<string>('price');
   const [filterCategory, setFilterCategory] = useState<string>('');
@@ -138,6 +139,7 @@ const Catalog: React.FC = () => {
     setSearchQuery('');
     setFilterCategory('');
     setSelectedCriteria([]);
+    setCriteriaSearch(''); // Сбрасываем поиск по критериям
     setSortType('price');
   };
 
@@ -161,17 +163,15 @@ const Catalog: React.FC = () => {
       return a.name.localeCompare(b.name);
     });
 
+  // Фильтрация критериев по поисковому запросу
+  const filteredCriteria = criteria.filter((crit) =>
+    crit.name.toLowerCase().includes(criteriaSearch.toLowerCase())
+  );
+
   if (loading) return <div>Загрузка...</div>;
 
   return (
     <div className="catalog-container">
-      {userRole === 'OWNER' && (
-        <div className="add-housing-container">
-          <button onClick={handleAddHousing} className="add-housing-button">
-            Добавить жилье
-          </button>
-        </div>
-      )}
       <div className="content-wrapper">
         <div className="filters-container">
           <div className="search-container">
@@ -183,7 +183,13 @@ const Catalog: React.FC = () => {
               className="search-input"
             />
           </div>
-
+          {userRole === 'OWNER' && (
+            <div className="add-housing-container">
+              <button onClick={handleAddHousing} className="add-housing-button">
+                Добавить жилье
+              </button>
+            </div>
+          )}
           <div className="filter-container">
             <label>Фильтр по категории: </label>
             <select
@@ -202,8 +208,15 @@ const Catalog: React.FC = () => {
 
           <div className="criteria-container">
             <label>Критерии:</label>
+            <input
+              type="text"
+              placeholder="Поиск по критериям"
+              value={criteriaSearch}
+              onChange={(e) => setCriteriaSearch(e.target.value)}
+              className="criteria-search-input"
+            />
             <div className="criteria-checkboxes">
-              {criteria.map((crit) => (
+              {filteredCriteria.map((crit) => (
                 <label key={crit.id} className="criterion-label">
                   <input
                     type="checkbox"
@@ -237,7 +250,7 @@ const Catalog: React.FC = () => {
         </div>
 
         {filteredProperties.length === 0 ? (
-          <p>Жилье не найдено</p>
+          <p className="no-properties">Жилье не найдено</p>
         ) : (
           <ul className="property-list">
             {filteredProperties.map((property) => (

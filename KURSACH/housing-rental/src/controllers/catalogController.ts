@@ -5,7 +5,7 @@ import { multiUpload } from '../middleware/upload'
 export const deleteHousing = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  const user = (req as any).user; // Предполагается, что `user` уже добавлен в объект `req` через middleware (например, для авторизации)
+  const user = (req as any).user; // Предполагается, что `user` уже добавлен в объект `req` через middleware
   if (!user) {
     res.status(401).json({ message: 'Необходимо авторизоваться' });
     return;
@@ -25,6 +25,8 @@ export const deleteHousing = async (req: Request, res: Response): Promise<void> 
           },
         },
         reviews: true, // Проверка связанных отзывов
+        images: true, // Добавляем связанные изображения
+        documents: true, // Добавляем связанные документы
       },
     });
 
@@ -71,6 +73,20 @@ export const deleteHousing = async (req: Request, res: Response): Promise<void> 
 
     // Удаляем связанные чаты
     await prisma.chat.deleteMany({
+      where: {
+        propertyId: propertyId,
+      },
+    });
+
+    // Удаляем связанные изображения
+    await prisma.propertyImage.deleteMany({
+      where: {
+        propertyId: propertyId,
+      },
+    });
+
+    // Удаляем связанные документы
+    await prisma.propertyDocument.deleteMany({
       where: {
         propertyId: propertyId,
       },

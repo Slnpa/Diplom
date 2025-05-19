@@ -42,7 +42,6 @@
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  width: 100%;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
@@ -55,7 +54,7 @@
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: #4CAF50;
+  border-color: #007bff;
   outline: none;
 }
 
@@ -98,7 +97,7 @@
 }
 
 .btn-submit {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 14px 22px;
@@ -111,7 +110,7 @@
 }
 
 .btn-submit:hover {
-  background-color: #45a049;
+  background-color: #135296;
 }
 
 .message {

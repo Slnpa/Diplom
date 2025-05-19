@@ -229,7 +229,7 @@ useEffect(() => {
             disabled={loading}
             className="chat-component__button"
           >
-            {loading ? 'Creating chat...' : 'Start a chat'}
+            {loading ? 'Создание чата...' : 'Начать чат'}
           </button>
         </div>
       )}

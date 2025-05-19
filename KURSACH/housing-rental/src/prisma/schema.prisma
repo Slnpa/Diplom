@@ -24,7 +24,6 @@ model User {
   messages    Message[]
 
   isActive    Boolean  @default(true)
-  isExternal  Boolean  @default(false)
 
   documentUrl String?  // Новый столбец для хранения ссылки на документ
   isVerified  Boolean  @default(false)  // Статус верификации документа
@@ -93,6 +92,8 @@ model Booking {
   status       BookingStatus   @default(PENDING)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+
+  clientName  String?  // Новое поле для имени клиента
 }
 
 // Новая модель: Категории жилья
