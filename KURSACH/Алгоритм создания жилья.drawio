@@ -1,12 +1,9 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.2.14">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.6">
   <diagram name="Страница — 1" id="efHE5yki45MCKFq1kKHO">
-    <mxGraphModel dx="1722" dy="548" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2066" dy="737" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="a9G4hWVlEVqjfbclJpaw-4" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="10" y="515" width="640" height="855" as="geometry" />
-        </mxCell>
         <mxCell id="_xMuG3Z-ZcQbF-bkOPCh-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Times New Roman;fontSize=14;" parent="1" source="_xMuG3Z-ZcQbF-bkOPCh-2" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="420" y="610" as="targetPoint" />
@@ -132,10 +129,10 @@
         <mxCell id="_xMuG3Z-ZcQbF-bkOPCh-38" value="Смена роли" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontFamily=Times New Roman;fontSize=14;" parent="1" vertex="1">
           <mxGeometry x="30" y="795" width="120" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="a9G4hWVlEVqjfbclJpaw-2" value="Какая роль у пользователя?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="a9G4hWVlEVqjfbclJpaw-2" value="Какая роль у пользователя?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=14;align=center;verticalAlign=middle;" parent="1" vertex="1">
           <mxGeometry x="350" y="610" width="140" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="a9G4hWVlEVqjfbclJpaw-3" value="Поменять роль?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="a9G4hWVlEVqjfbclJpaw-3" value="Поменять роль?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=14;align=center;verticalAlign=middle;" parent="1" vertex="1">
           <mxGeometry x="195" y="760" width="140" height="140" as="geometry" />
         </mxCell>
       </root>
