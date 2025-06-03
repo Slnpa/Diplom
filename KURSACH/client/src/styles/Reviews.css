@@ -2,7 +2,7 @@
     font-family: Arial, sans-serif;
     margin: 20px;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 8px;
     background-color: #f9f9f9;
   }
@@ -28,7 +28,7 @@
   }
   
   .review-item {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #000000;
     padding: 10px 0;
   }
   
@@ -44,7 +44,7 @@
   
   .star {
     font-size: 18px;
-    color: #ccc; /* Цвет пустых звезд */
+    color: #000000; /* Цвет пустых звезд */
     margin-right: 2px;
   }
   
@@ -73,7 +73,7 @@
     width: 100%;
     margin-bottom: 15px;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 4px;
   }
   

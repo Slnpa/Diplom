@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/ChatComponent.css'
+import '../styles/ChatComponent.css';
 import { useSelector } from 'react-redux';
 
 interface Chat {
@@ -43,39 +43,37 @@ const ChatComponent: React.FC<{ ownerId: number; userRole: string; propertyId: n
   const [error, setError] = useState<string | null>(null);
 
   // Получение списка чатов по propertyId
-// Обновление списка чатов каждые 1 секунду
-useEffect(() => {
-  const intervalId = setInterval(() => {
-    const fetchChats = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/api/chats/${userId}/${propertyId}`);
-        if (!response.ok) {
-          throw new Error(`Error fetching chats: ${response.statusText}`);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const fetchChats = async () => {
+        try {
+          const response = await fetch(`http://localhost:3000/api/chats/${userId}/${propertyId}`);
+          if (!response.ok) {
+            throw new Error(`Error fetching chats: ${response.statusText}`);
+          }
+          const data: Chat[] = await response.json();
+          setChats(data || []);
+
+          const existingChat = data.find(
+            (chat) =>
+              (Number(chat.ownerId) === Number(ownerId) && Number(chat.userId) === Number(userId) && chat.propertyId === propertyId) ||
+              (Number(chat.ownerId) === Number(userId) && Number(chat.userId) === Number(ownerId) && chat.propertyId === propertyId)
+          );
+          setChatExists(!!existingChat);
+
+          if (existingChat) {
+            setCurrentChat(existingChat);
+          }
+        } catch (err) {
+          setError((err as Error).message);
         }
-        const data: Chat[] = await response.json();
-        setChats(data || []);
+      };
 
-        const existingChat = data.find(
-          (chat) =>
-            (Number(chat.ownerId) === Number(ownerId) && Number(chat.userId) === Number(userId) && chat.propertyId === propertyId) ||
-            (Number(chat.ownerId) === Number(userId) && Number(chat.userId) === Number(ownerId) && chat.propertyId === propertyId)
-        );
-        setChatExists(!!existingChat);
+      fetchChats();
+    }, 1000);
 
-        if (existingChat) {
-          setCurrentChat(existingChat);
-        }
-      } catch (err) {
-        setError((err as Error).message);
-      }
-    };
-
-    fetchChats();
-  }, 1000); // Запуск каждые 1000 мс
-
-  return () => clearInterval(intervalId); // Очистка интервала при размонтировании
-}, [userId, ownerId, propertyId]);
-
+    return () => clearInterval(intervalId);
+  }, [userId, ownerId, propertyId]);
 
   // Создание нового чата
   const createChat = async () => {
@@ -93,31 +91,29 @@ useEffect(() => {
           propertyId,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`Error creating chat: ${response.statusText}`);
       }
-  
+
       const newChat = await response.json();
-  
-      // Заполнение данных о владельце и пользователе вручную
+
       const updatedChat = {
         ...newChat,
         owner: {
           id: ownerId,
           role: 'OWNER',
           login: ownerName,
-          email: '', // Добавьте email, если он известен
+          email: '',
         },
         user: {
           id: userId,
           role: 'USER',
-          login: 'Вы', // Вы можете указать ваше имя пользователя здесь
-          email: '', // Добавьте email, если он известен
+          login: 'Вы',
+          email: '',
         },
       };
-  
-      // Обновление состояния чатов и текущего чата
+
       setChats((prevChats) => [...prevChats, updatedChat]);
       setCurrentChat(updatedChat);
       setChatExists(true);
@@ -127,8 +123,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  
-  
+
   // Обновление сообщений текущего чата
   const fetchMessages = async (chatId: number) => {
     try {
@@ -148,14 +143,13 @@ useEffect(() => {
     }
   };
 
-  // Счётчик для обновления сообщений
   useEffect(() => {
     if (currentChat) {
       const intervalId = setInterval(() => {
         fetchMessages(currentChat.id);
       }, 1000);
 
-      return () => clearInterval(intervalId); // Очистка интервала при размонтировании
+      return () => clearInterval(intervalId);
     }
   }, [currentChat]);
 
@@ -181,7 +175,6 @@ useEffect(() => {
           return response.json();
         })
         .then((newMessage) => {
-          // Обновляем чат, убедившись, что сообщения всегда массив
           setCurrentChat((prevChat) => {
             if (prevChat) {
               return {
@@ -189,7 +182,7 @@ useEffect(() => {
                 messages: Array.isArray(prevChat.messages) ? [...prevChat.messages, newMessage] : [newMessage],
               };
             }
-            return prevChat; // Если чата нет, возвращаем предыдущий стейт
+            return prevChat;
           });
           setMessage('');
         })
@@ -240,16 +233,19 @@ useEffect(() => {
           <div className="chat-component__messages">
             {currentChat?.messages?.length > 0 ? (
               currentChat.messages.map((msg) => (
-                <p key={msg.id} className="chat-component__message">
+                <div
+                  key={msg.id}
+                  className={`chat-component__message ${Number(msg.senderId) === Number(userId) ? 'sent' : 'received'}`}
+                >
                   <b>
                     {Number(msg.senderId) === Number(userId)
                       ? 'Вы'
                       : Number(msg.senderId) === Number(currentChat.owner?.id)
                       ? currentChat.owner?.login
                       : currentChat.user?.login}
-                  </b>{' '}
+                  </b>
                   {msg.content}
-                </p>
+                </div>
               ))
             ) : (
               <p>Сообщений пока нет. Начни диалог!</p>
