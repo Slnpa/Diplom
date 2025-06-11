@@ -233,7 +233,9 @@ const PropertyPage: React.FC = () => {
       {userRole === 'OWNER' && (
   <ExternalBookingForm propertyId={property.id} bookings={property.bookings}/>
 )}
-        {userRole === 'USER' && (
+        {userRole === 'USER'&&  (
+      <Reviews propertyId={property.id} isConfirmed={isBookingConfirmed} />
+  ) || userRole === 'OWNER' &&  (
       <Reviews propertyId={property.id} isConfirmed={isBookingConfirmed} />
   )}
       {userRole && (

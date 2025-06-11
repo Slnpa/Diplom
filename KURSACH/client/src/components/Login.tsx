@@ -52,8 +52,6 @@ const Login: React.FC = () => {
         // Перенаправление
         if (decodedToken.isActive === false) {
           setMessage('Ваш аккаунт заблокирован');
-        } else if (decodedToken.isVerified === false) {
-          setMessage('Ваш аккаунт не верифицирован');
         } else {
           window.location.href = '/catalog';
         }

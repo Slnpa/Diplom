@@ -33,7 +33,7 @@
   /* Стили для disabled дней */
   .react-datepicker__day--disabled {
     background-color: #f0f0f0;
-    color: #000000;
+    color: #ccc;
     cursor: not-allowed;
   }
   

@@ -50,7 +50,7 @@
   margin: 10px 0;
   width: calc(50% - 20px);
   border-radius: 4px;
-  border: 1px solid #000000;
+  border: 1px solid #ccc;
 }
 
 .property-page button {
@@ -68,7 +68,7 @@
 }
 
 .property-page button:disabled {
-  background-color: #000000;
+  background-color: #ccc;
   cursor: not-allowed;
 }
 

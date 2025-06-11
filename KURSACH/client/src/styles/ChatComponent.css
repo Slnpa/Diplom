@@ -83,7 +83,7 @@
 /* Сообщения других пользователей (полученные) */
 .chat-component__message.received {
   background-color: #e0e0e0;
-  border: 1px solid #000000;
+  border: 1px solid #ccc;
   color: #333;
   align-self: flex-start;
   margin-right: auto;
