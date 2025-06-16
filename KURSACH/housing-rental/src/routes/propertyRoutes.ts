@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPropertyDetails, createBooking, acceptBooking, cancelBooking, updateProperty, getOwnerBookings, getBookingHistory, getReviewsByProperty, addReview } from '../controllers/propertyController';
+import { getPropertyDetails, createBooking, acceptBooking, cancelBooking, updateProperty, getOwnerBookings, getBookingHistory, getReviewsByProperty, addReview, getOwnerProperties } from '../controllers/propertyController';
 import { authenticate } from '../middleware/authMiddleware';
 import multer from 'multer';
 import path from 'path';
@@ -39,6 +39,8 @@ router.put('/:id', upload.array('images'), updateProperty);  // Использу
 
 router.get('/:propertyId/reviews', getReviewsByProperty);
 router.post('/reviews', addReview);
+
+router.get('/owner/properties/:userId', getOwnerProperties); // Новый маршрут для жилья
 
 
 export default router;

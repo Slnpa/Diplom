@@ -201,12 +201,38 @@ export const approveProperty = async (req: Request, res: Response): Promise<void
   }
 
   try {
-    await prisma.property.update({
+    // Получаем жильё с данными владельца
+    const property = await prisma.property.findUnique({
       where: { id: parseInt(propertyId) },
-      data: { status },
+      include: { owner: true },
     });
 
-    res.sendStatus(204); // Ничего не возвращает, только успех
+    if (!property) {
+      res.status(404).json({ message: 'Жильё не найдено' });
+      return;
+    }
+
+    // Проверяем, был ли статус PENDING
+    const wasPending = property.status === 'PENDING';
+
+    // Обновляем статус
+    const updatedProperty = await prisma.property.update({
+      where: { id: parseInt(propertyId) },
+      data: { status },
+      include: { owner: true },
+    });
+
+    // Возвращаем данные, если статус изменился с PENDING
+    if (wasPending && (status === 'APPROVED' || status === 'REJECTED')) {
+      res.json({
+        propertyId: updatedProperty.id,
+        name: updatedProperty.name,
+        status: updatedProperty.status,
+        ownerId: updatedProperty.owner.id,
+      });
+    } else {
+      res.sendStatus(204);
+    }
   } catch (err) {
     console.error('Ошибка при обновлении статуса жилья:', err);
     res.sendStatus(500);

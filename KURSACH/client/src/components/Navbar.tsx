@@ -14,7 +14,58 @@ const Navbar: React.FC = () => {
   const [pendingBookings, setPendingBookings] = useState<number>(0);
   const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
   const [documents, setDocuments] = useState<File | null>(null);
+const [statusNotification, setStatusNotification] = useState<{ propertyId: number; name: string; status: string } | null>(null);
 
+  // Проверка статуса жилья владельца
+  const fetchPropertyStatus = useCallback(async () => {
+    if (userRole === 'OWNER' && userId) {
+      try {
+        const response = await fetch(`http://localhost:3000/property/owner/properties/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.ok) {
+          const properties = await response.json();
+          const shownNotifications = JSON.parse(localStorage.getItem('shownNotifications') || '{}');
+
+          // Проверяем каждое жильё
+          for (const property of properties) {
+            const notificationKey = `property_${property.id}`;
+            if (
+              property.status !== 'PENDING' &&
+              !shownNotifications[notificationKey] &&
+              (property.status === 'APPROVED' || property.status === 'REJECTED')
+            ) {
+              setStatusNotification({
+                propertyId: property.id,
+                name: property.name,
+                status: property.status,
+              });
+              shownNotifications[notificationKey] = true;
+              localStorage.setItem('shownNotifications', JSON.stringify(shownNotifications));
+              break; // Показываем одно уведомление за раз
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при получении статуса жилья:', error);
+      }
+    }
+  }, [userRole, userId]);
+
+  // Периодическая проверка статуса
+  useEffect(() => {
+    if (userRole === 'OWNER' && userId) {
+      fetchPropertyStatus();
+      const intervalId = setInterval(fetchPropertyStatus, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [fetchPropertyStatus, userId]);
+  
   // Функция для получения актуального статуса верификации
   const fetchVerificationStatus = useCallback(async () => {
     if (userId) {
@@ -172,7 +223,9 @@ const Navbar: React.FC = () => {
       alert('Ошибка при загрузке документов');
     }
   };
-
+ const closeStatusModal = () => {
+    setStatusNotification(null);
+  };
   return (
     <nav className="navbar">
       <ul className="navbar-list">
@@ -302,6 +355,20 @@ const Navbar: React.FC = () => {
                 Закрыть
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {statusNotification && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Обновление статуса</h3>
+            <p>
+              Ваше жильё "{statusNotification.name}" было{' '}
+              {statusNotification.status === 'APPROVED' ? 'одобрено' : 'отклонено'}.
+            </p>
+            <button onClick={closeStatusModal} className="close-button">
+              Закрыть
+            </button>
           </div>
         </div>
       )}

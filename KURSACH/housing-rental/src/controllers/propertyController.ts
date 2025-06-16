@@ -466,6 +466,24 @@ export const addReview = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Получение всех объектов жилья владельца
+export const getOwnerProperties = async (req: Request, res: Response): Promise<void> => {
+  const { userId } = req.params;
 
+  try {
+    const properties = await prisma.property.findMany({
+      where: { ownerId: Number(userId) },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+      },
+    });
+    res.json(properties);
+  } catch (err) {
+    console.error('Ошибка при получении жилья:', err);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+};
 
 
